@@ -60,7 +60,7 @@
     </dependencies>
 
     <build>
-        <finalName>spring-web-demo</finalName>
+        <finalName>ROOT</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>

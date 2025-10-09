@@ -2,7 +2,6 @@ package ru.yandex.practicum.DTO;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Objects;
 
 public record PostDTO(
         @JsonProperty("id") long id,
@@ -13,10 +12,6 @@ public record PostDTO(
         @JsonProperty("commentsCount") long commentsCount
 
 ) {
-    @JsonCreator
-    public PostDTO (long id, String title, String text, String[] tags){
-        this(id, title, text, tags, -1L, -1L);
-    }
 
     @JsonCreator
     public PostDTO(long id, String title, String text, String[] tags, long likesCount, long commentsCount) {

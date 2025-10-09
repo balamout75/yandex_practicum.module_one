@@ -6,9 +6,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.yandex.practicum.DTO.CommentDTO;
+import ru.yandex.practicum.DTO.PostDTO_class;
 import ru.yandex.practicum.DTO.PostDTO;
-import ru.yandex.practicum.model.User;
-import ru.yandex.practicum.service.UserService;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class PostController {
     }
     //1 posts list returning
     @GetMapping
-    public List<PostDTO> getAllPosts() {
+    public List<PostDTO_class> getAllPosts() {
         System.out.println("Вывели список постов");
         //return service.findAll();
         return null;
@@ -38,11 +38,12 @@ public class PostController {
     }
 
     //3 post creation
-    @RequestMapping(method = RequestMethod.POST)
+    //@RequestMapping(method = RequestMethod.POST)
+    //@PostMapping(value = "/", consumes = {"*/*"})
     @PostMapping
     public PostDTO savePost(@RequestBody PostDTO postDTO) {
         //public void save() {
-        System.out.println("Post creation");
+        System.out.println("Post creation " + postDTO.toString());
         //service.save(user);
         return null;
     }
@@ -85,8 +86,8 @@ public class PostController {
     }
 
     //8 get post image
-    @GetMapping(value = "/{id}/avatar", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> getAvatar(@PathVariable("id") Long id) {
+    @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getImage(@PathVariable("id") Long id) {
         /*if (!service.exists(id)) {
             return ResponseEntity.notFound().build();
         }*/
