@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.yandex.practicum.DTO.CommentDTO;
 import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.service.UserService;
