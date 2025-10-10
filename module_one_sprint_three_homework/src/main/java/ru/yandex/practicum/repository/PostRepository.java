@@ -12,7 +12,7 @@ public interface PostRepository {
 
     void save(PostDTO user);
 
-    void update(Long id, Post postDTO);
+    void update(Long id, PostDTO postDTO);
 
     void deleteById(Long id);
 }

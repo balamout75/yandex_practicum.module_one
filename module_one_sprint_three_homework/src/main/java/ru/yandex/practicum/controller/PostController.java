@@ -6,9 +6,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.yandex.practicum.DTO.CommentDTO;
 import ru.yandex.practicum.DTO.PostDTO;
-import ru.yandex.practicum.model.User;
-import ru.yandex.practicum.service.UserService;
+import ru.yandex.practicum.mapping.PostMapper;
+import ru.yandex.practicum.model.Post;
+import ru.yandex.practicum.service.PostService;
 
 import java.util.List;
 
@@ -16,18 +18,20 @@ import java.util.List;
 @RequestMapping("/api/posts")
 public class PostController {
 
-    //private final UserService service;
+    private final PostService service;
+    private final PostMapper postMapper=PostMapper.INSTANCE;
 
-    //public UserController(UserService service) {
-    public PostController() {
-        //this.service = service;
+    public PostController(PostService service) {
+        this.service = service;
     }
+
     //1 posts list returning
     @GetMapping
     public List<PostDTO> getAllPosts() {
+        List<Post> posts = service.findAll();
+        List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
         System.out.println("Вывели список постов");
-        //return service.findAll();
-        return null;
+        return postDTOList;
     }
     //2 post getting
     @GetMapping("/{id}")

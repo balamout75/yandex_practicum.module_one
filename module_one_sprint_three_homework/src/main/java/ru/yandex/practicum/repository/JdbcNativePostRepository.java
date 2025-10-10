@@ -18,12 +18,14 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public List<Post> findAll() {
+        String [] tags = new String[]{"#раз","#два","#три"};
         return jdbcTemplate.query(
                 "select id, title, text, likesCount, commentsCount from posts",
                 (rs, rowNum) -> new Post(
                         rs.getLong("id"),
                         rs.getString("title"),
                         rs.getString("text"),
+                        tags,
                         rs.getLong("likesCount"),
                         rs.getLong("likesCount")
                 ));
@@ -37,7 +39,7 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public void update(Long id, PostDTO postDTO) {
-        jdbcTemplate.update("update posts set title = ?, text = ?, lekesCount = ?, commentsCount = ? where id = ?",
+        jdbcTemplate.update("update posts set title = ?, text = ?, likesCount = ?, commentsCount = ? where id = ?",
                 postDTO.title(), postDTO.text(), postDTO.likesCount(), postDTO.commentsCount(), id);
     }
 
