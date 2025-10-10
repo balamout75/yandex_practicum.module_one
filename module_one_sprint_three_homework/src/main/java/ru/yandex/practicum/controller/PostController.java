@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.CommentDTO;
 import ru.yandex.practicum.DTO.PostDTO_class;
 import ru.yandex.practicum.DTO.PostDTO;
+import ru.yandex.practicum.mapping.PostMapper;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 public class PostController {
 
     //private final UserService service;
+    private final PostMapper postMapper = PostMapper.INSTANCE;
 
     //public UserController(UserService service) {
     public PostController() {

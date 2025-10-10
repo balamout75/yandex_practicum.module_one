@@ -1,11 +1,12 @@
 -- Таблица с пользователями
-create table if not exists users(
+create table if not exists posts(
   id bigserial primary key,
-  first_name varchar(256) not null,
-  last_name varchar(256) not null,
-  age integer not null,
-  active boolean not null);
+  title varchar,
+  text varchar,
+  likesCount bigint,
+  commentsCount bigint);
 
-insert into users(first_name, last_name, age, active) values ('Иван', 'Иванов', 30, true);
-insert into users(first_name, last_name, age, active) values ('Пётр', 'Петров', 25, false);
-insert into users(first_name, last_name, age, active) values ('Мария', 'Сидорова', 28, true);
+insert into posts(title, text, likesCount, commentsCount) values ('Первое сообщение', 'Бла', 1, 0);
+insert into posts(title, text, likesCount, commentsCount) values ('Второе сообщение', 'Бла бла', 2, 0);
+insert into posts(title, text, likesCount, commentsCount) values ('третье сообщение', 'Бла бла бла', 3, 0);
+
