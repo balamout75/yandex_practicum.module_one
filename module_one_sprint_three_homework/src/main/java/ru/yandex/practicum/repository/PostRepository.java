@@ -1,5 +1,6 @@
 package ru.yandex.practicum.repository;
 
+import org.springframework.core.io.Resource;
 import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.User;
@@ -15,4 +16,8 @@ public interface PostRepository {
     void update(Long id, PostDTO postDTO);
 
     void deleteById(Long id);
+
+    Post getById(Long id);
+
+    Resource getImageById(Long id);
 }

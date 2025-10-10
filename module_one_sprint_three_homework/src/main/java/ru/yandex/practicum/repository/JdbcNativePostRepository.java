@@ -1,8 +1,10 @@
 package ru.yandex.practicum.repository;
 
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.DTO.PostDTO;
+import ru.yandex.practicum.mapping.PostRowMapper;
 import ru.yandex.practicum.model.Post;
 
 import java.util.List;
@@ -18,17 +20,22 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public List<Post> findAll() {
-        String [] tags = new String[]{"#раз","#два","#три"};
-        return jdbcTemplate.query(
-                "select id, title, text, likesCount, commentsCount from posts",
-                (rs, rowNum) -> new Post(
-                        rs.getLong("id"),
-                        rs.getString("title"),
-                        rs.getString("text"),
-                        tags,
-                        rs.getLong("likesCount"),
-                        rs.getLong("likesCount")
-                ));
+        //String [] tags = new String[]{"#раз","#два","#три"};
+        return jdbcTemplate.query("SELECT id, title, text, likesCount, commentsCount FROM posts",new PostRowMapper());
+    }
+
+    @Override
+    public Post getById(Long id) {
+        //String [] tags = new String[]{"#раз","#два","#три"};
+        //String query = "SELECT * FROM posts WHERE id = ?";
+        //Post post = jdbcTemplate.queryForObject(query,new PostRowMapper(),id);
+        return jdbcTemplate.queryForObject("SELECT * FROM posts WHERE id = ?",new PostRowMapper(),id);
+    }
+
+    @Override
+    public Resource getImageById(Long id) {
+
+        return null;
     }
 
     @Override

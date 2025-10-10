@@ -1,5 +1,6 @@
 package ru.yandex.practicum.controller;
 
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.CommentDTO;
 import ru.yandex.practicum.DTO.PostDTO;
+import ru.yandex.practicum.DTO.ResponceDTO;
 import ru.yandex.practicum.mapping.PostMapper;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
@@ -26,19 +28,20 @@ public class PostController {
     }
 
     //1 posts list returning
+    @CrossOrigin
     @GetMapping
-    public List<PostDTO> getAllPosts() {
+    public ResponseEntity<?> getAllPosts() {
         List<Post> posts = service.findAll();
         List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
         System.out.println("Вывели список постов");
-        return postDTOList;
+        return new ResponseEntity<>(new ResponceDTO(postDTOList,false,false,1), HttpStatus.OK);
     }
     //2 post getting
+    @CrossOrigin
     @GetMapping("/{id}")
-    public PostDTO getPostById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<?> getPostById(@PathVariable(name = "id") Long id) {
         System.out.println("Вернули пост");
-        //service.update(id, user);
-        return null;
+        return new ResponseEntity<>(postMapper.toPostDTO(service.getById(id)), HttpStatus.OK);
     }
 
     //3 post creation
@@ -89,20 +92,13 @@ public class PostController {
     }
 
     //8 get post image
-    @GetMapping(value = "/{id}/avatar", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> getAvatar(@PathVariable("id") Long id) {
-        /*if (!service.exists(id)) {
-            return ResponseEntity.notFound().build();
-        }*/
-
-        byte[] bytes = new byte[]{(byte) 137, 80, 78, 71}; //byte[] bytes = service.getAvatar(id);
-        if (bytes == null || bytes.length == 0) {
-            return ResponseEntity.notFound().build();
-        }
+    @CrossOrigin
+    @GetMapping(value = "/{id}/image")
+    public ResponseEntity<Resource> getImage(@PathVariable("id") Long id) {
+        Resource file = service.getImage(id);
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .header(HttpHeaders.CACHE_CONTROL, "no-store")
-                .body(bytes);
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(file);
     }
 
     @GetMapping("/{id}/comments")
