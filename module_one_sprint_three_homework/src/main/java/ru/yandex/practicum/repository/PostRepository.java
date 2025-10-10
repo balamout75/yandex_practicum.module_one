@@ -11,7 +11,7 @@ public interface PostRepository {
 
     List<Post> findAll();
 
-    void save(PostDTO user);
+    Post save(PostDTO user);
 
     void update(Long id, PostDTO postDTO);
 

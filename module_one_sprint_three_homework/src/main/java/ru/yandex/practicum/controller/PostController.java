@@ -45,13 +45,12 @@ public class PostController {
     }
 
     //3 post creation
-    @RequestMapping(method = RequestMethod.POST)
+
+    @CrossOrigin
     @PostMapping
-    public PostDTO savePost(@RequestBody PostDTO postDTO) {
-        //public void save() {
+    public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO) {
         System.out.println("Post creation");
-        //service.save(user);
-        return null;
+        return new ResponseEntity<>(postMapper.toPostDTO(service.save(postDTO)), HttpStatus.OK);
     }
 
     //4 update post
@@ -79,12 +78,11 @@ public class PostController {
 
     //7 upload post image
     @PutMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadImage(@PathVariable("id") Long id,
-                                               @RequestParam("file") MultipartFile file) throws Exception {
+    public ResponseEntity<String> uploadImage(@PathVariable("id") Long id, @RequestParam("file") MultipartFile file) throws Exception {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("empty file");
         }
-        boolean ok = true;//service.uploadAvatar(id, file.getBytes());
+        boolean ok = service.uploadImage(id, file);
         if (!ok) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("failed to upload image");
         }

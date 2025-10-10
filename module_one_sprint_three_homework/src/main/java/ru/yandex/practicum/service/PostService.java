@@ -3,6 +3,7 @@ package ru.yandex.practicum.service;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.model.User;
@@ -31,8 +32,8 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public void save(PostDTO postDTO) {
-        postRepository.save(postDTO);
+    public Post save(PostDTO postDTO) {
+        return postRepository.save(postDTO);
     }
 
     public void update(Long id, PostDTO postDTO) {
@@ -70,5 +71,21 @@ public class PostService {
             throw new RuntimeException(e.getMessage(), e);
         }
 
+    }
+
+    public boolean uploadImage(Long id, MultipartFile file) {
+        try {
+            Path uploadDir = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+            Path filePath = uploadDir.resolve(file.getOriginalFilename());
+            file.transferTo(filePath);
+
+            return true;
+        } catch (IOException e) {
+            //throw new RuntimeException(e.getMessage(), e);
+            return false;
+        }
     }
 }

@@ -39,9 +39,10 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public void save(PostDTO postDTO) {
-        jdbcTemplate.update("insert into posts(title, text, likesCount, commentsCount) values(?, ?, ?, ?)",
-                postDTO.title(), postDTO.text(), postDTO.likesCount(), postDTO.commentsCount());
+    public Post save(PostDTO postDTO) {
+        jdbcTemplate.update("insert into posts(title, text) values(?, ?)",
+                postDTO.title(), postDTO.text());
+        return getById()
     }
 
     @Override
