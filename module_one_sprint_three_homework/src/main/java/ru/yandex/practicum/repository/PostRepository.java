@@ -13,11 +13,13 @@ public interface PostRepository {
 
     Post save(PostDTO user);
 
-    void update(Long id, PostDTO postDTO);
+    Post update(Long id, PostDTO postDTO);
 
     void deleteById(Long id);
 
     Post getById(Long id);
 
-    Resource getImageById(Long id);
+    String getFileNameByPostId(Long id);
+
+    boolean setFileNameByPostId(Long id, String fileName);
 }

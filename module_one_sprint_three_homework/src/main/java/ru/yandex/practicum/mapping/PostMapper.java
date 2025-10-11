@@ -3,6 +3,8 @@ package ru.yandex.practicum.mapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
+import ru.yandex.practicum.DTO.CommentDTO;
+import ru.yandex.practicum.model.Comment;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.DTO.PostDTO;
 
@@ -12,5 +14,7 @@ import java.util.List;
 public interface PostMapper {
     PostMapper INSTANCE = Mappers.getMapper(PostMapper.class);
     PostDTO toPostDTO(Post post); //map User to UserResponse
-    List<PostDTO> toPostDTOList(List<Post> posts); //map list of User to list of UserResponse
+    List<PostDTO> toPostDTOList(List<Post> posts);
+    CommentDTO toCommentDTO(Comment comment); //map User to UserResponse
+    List<CommentDTO> toCommentDTOList(List<Comment> comments);//map list of User to list of UserResponse
 }

@@ -2,57 +2,84 @@ package ru.yandex.practicum.repository;
 
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.mapping.PostRowMapper;
 import ru.yandex.practicum.model.Post;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
 public class JdbcNativePostRepository implements PostRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final PostRowMapper postRowMapper;
+    private static final String SelectSQL = "SELECT id, title, text, image, likesCount, commentsCount FROM posts";
+    private static final String InsertSQL="insert into posts(title, text) values(?, ?)";
+    private static final String UpdateByIdSQL = "update posts set title = ?, text = ?  where id = ?";
+    private static final String UpdateImageByIdSQL = "update posts set image = ? where id = ?";
+    private static final String SelectByIdSQL = "SELECT * FROM posts WHERE id = ?";
+    private static final String DeleteByIdSQL = "delete from posts where id = ?";
 
     public JdbcNativePostRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        postRowMapper=new PostRowMapper();
     }
 
     @Override
     public List<Post> findAll() {
-        //String [] tags = new String[]{"#раз","#два","#три"};
-        return jdbcTemplate.query("SELECT id, title, text, likesCount, commentsCount FROM posts",new PostRowMapper());
+        return jdbcTemplate.query(SelectSQL,postRowMapper);
     }
 
     @Override
     public Post getById(Long id) {
-        //String [] tags = new String[]{"#раз","#два","#три"};
-        //String query = "SELECT * FROM posts WHERE id = ?";
-        //Post post = jdbcTemplate.queryForObject(query,new PostRowMapper(),id);
-        return jdbcTemplate.queryForObject("SELECT * FROM posts WHERE id = ?",new PostRowMapper(),id);
-    }
-
-    @Override
-    public Resource getImageById(Long id) {
-
-        return null;
+        return jdbcTemplate.queryForObject(SelectByIdSQL, postRowMapper,id);
     }
 
     @Override
     public Post save(PostDTO postDTO) {
-        jdbcTemplate.update("insert into posts(title, text) values(?, ?)",
-                postDTO.title(), postDTO.text());
-        return getById()
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement ps = con.prepareStatement(InsertSQL, new String[]{"id"});
+                ps.setString(1, postDTO.title());
+                ps.setString(2, postDTO.text());
+                return ps;
+            }
+        }, keyHolder);
+        long id = keyHolder.getKey().longValue();
+        return getById(id);
     }
 
     @Override
-    public void update(Long id, PostDTO postDTO) {
-        jdbcTemplate.update("update posts set title = ?, text = ?, likesCount = ?, commentsCount = ? where id = ?",
-                postDTO.title(), postDTO.text(), postDTO.likesCount(), postDTO.commentsCount(), id);
+    public Post update(Long id, PostDTO postDTO) {
+        jdbcTemplate.update(UpdateByIdSQL,
+                postDTO.title(), postDTO.text(), id);
+        return getById(id);
     }
 
     @Override
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from posts where id = ?", id);
+        jdbcTemplate.update(DeleteByIdSQL, id);
+    }
+
+    @Override
+    public String getFileNameByPostId(Long id) {
+        //тут просится Optional
+        return jdbcTemplate.queryForObject(SelectByIdSQL, postRowMapper,id).getImage();
+    }
+
+    @Override
+    public boolean setFileNameByPostId(Long id, String fileName) {
+        jdbcTemplate.update(UpdateImageByIdSQL, fileName, id);
+       return true;
     }
 }

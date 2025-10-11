@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService {
@@ -36,8 +37,8 @@ public class PostService {
         return postRepository.save(postDTO);
     }
 
-    public void update(Long id, PostDTO postDTO) {
-        postRepository.update(id, postDTO);
+    public Post update(Long id, PostDTO postDTO) {
+        return postRepository.update(id, postDTO);
     }
 
     public void deleteById(Long id) {
@@ -49,21 +50,9 @@ public class PostService {
     }
 
     public Resource getImage(Long id)  {
-        Path uploadDir = Paths.get(UPLOAD_DIR);
-        /*Path path = uploadDir.resolve("my.png");
-        System.out.println("путь к файлу "+ path);
         try {
-            Files.createDirectories(path.getParent());
-            Files.createFile(path);
-
-            return null;
-        } catch (IOException e) {
-            System.err.println("already exists: " + e.getMessage());
-            throw new RuntimeException(e.getMessage(), e);
-        }*/
-
-        try {
-            Path filePath = Paths.get(UPLOAD_DIR).resolve("Peschannaya.png").normalize();
+            String fileName=postRepository.getFileNameByPostId(id);
+            Path filePath = Paths.get(UPLOAD_DIR).resolve(fileName).normalize();
             System.out.println("путь к файлу "+ filePath);
             byte[] content = Files.readAllBytes(filePath);
             return new ByteArrayResource(content);
@@ -76,16 +65,17 @@ public class PostService {
     public boolean uploadImage(Long id, MultipartFile file) {
         try {
             Path uploadDir = Paths.get(UPLOAD_DIR);
+            String fileName=file.getOriginalFilename();
+            System.out.println("сохранияем файл "+ fileName);
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
-            Path filePath = uploadDir.resolve(file.getOriginalFilename());
+            Path filePath = uploadDir.resolve(fileName);
+            System.out.println("полное имя "+ fileName);
             file.transferTo(filePath);
-
-            return true;
+            return postRepository.setFileNameByPostId(id,fileName);
         } catch (IOException e) {
-            //throw new RuntimeException(e.getMessage(), e);
-            return false;
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

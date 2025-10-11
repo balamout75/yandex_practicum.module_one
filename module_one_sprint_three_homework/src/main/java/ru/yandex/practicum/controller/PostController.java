@@ -14,8 +14,10 @@ import ru.yandex.practicum.mapping.PostMapper;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -28,7 +30,6 @@ public class PostController {
     }
 
     //1 posts list returning
-    @CrossOrigin
     @GetMapping
     public ResponseEntity<?> getAllPosts() {
         List<Post> posts = service.findAll();
@@ -37,7 +38,6 @@ public class PostController {
         return new ResponseEntity<>(new ResponceDTO(postDTOList,false,false,1), HttpStatus.OK);
     }
     //2 post getting
-    @CrossOrigin
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable(name = "id") Long id) {
         System.out.println("Вернули пост");
@@ -46,7 +46,6 @@ public class PostController {
 
     //3 post creation
 
-    @CrossOrigin
     @PostMapping
     public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO) {
         System.out.println("Post creation");
@@ -55,10 +54,10 @@ public class PostController {
 
     //4 update post
     @PutMapping("/{id}")
-    public PostDTO update(@PathVariable(name = "id") Long id, @RequestBody PostDTO postDTO) {
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody PostDTO postDTO) {
         //service.update(id, user);
         System.out.println("Post updating");
-        return null;
+        return new ResponseEntity<>(postMapper.toPostDTO(service.update(id, postDTO)), HttpStatus.OK);
     }
 
     //5 update post
@@ -78,19 +77,32 @@ public class PostController {
 
     //7 upload post image
     @PutMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadImage(@PathVariable("id") Long id, @RequestParam("file") MultipartFile file) throws Exception {
+    public ResponseEntity<Resource> uploadImage(@PathVariable("id") Long id,
+                                                @RequestParam("image") MultipartFile file/*,
+                                                @RequestParam("filename") String filename*/) throws Exception {
+
+        System.out.println("файл сохраняем");
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("empty file");
+            System.out.println("файл пустой");
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(service.getImage(id));
         }
         boolean ok = service.uploadImage(id, file);
         if (!ok) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("failed to upload image");
+            System.out.println("файл не сохранили");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(service.getImage(id));
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body("ok");
+        System.out.println("Да все вроде хорошо");
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(service.getImage(id));
     }
 
     //8 get post image
-    @CrossOrigin
     @GetMapping(value = "/{id}/image")
     public ResponseEntity<Resource> getImage(@PathVariable("id") Long id) {
         Resource file = service.getImage(id);
@@ -99,11 +111,10 @@ public class PostController {
                 .body(file);
     }
 
-    @GetMapping("/{id}/comments")
-    public List<CommentDTO> getAllComments() {
-        System.out.println("Вывели список комментов");
-        //return service.findAll();
-        return null;
+    @GetMapping(value = "/undefined/comments")
+    public ResponseEntity<?> getStub() {
+        ArrayList<CommentDTO> stub = new ArrayList<CommentDTO>();
+        return new ResponseEntity<>(stub, HttpStatus.OK);
     }
 
 }

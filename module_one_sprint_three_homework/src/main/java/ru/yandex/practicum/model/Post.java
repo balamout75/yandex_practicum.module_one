@@ -6,6 +6,7 @@ public class Post {
     String title;
     String text;
     String[] tags;
+    String image;
     long likesCount;
     long commentsCount;
 
@@ -13,20 +14,28 @@ public class Post {
 
     }
 
-    public Post(long id, String title, String text, String[] tags, long likesCount, long commentsCount) {
+    public Post(long id, String title, String text, String[] tags, String image, long likesCount, long commentsCount) {
         this.id = id;
         this.title = title;
         this.text = text;
         this.tags = tags;
+        this.image = image;
         this.likesCount = likesCount;
         this.commentsCount = commentsCount;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public Post(long id, String title, String text, long likesCount, long commentsCount) {
         this.id = id;
         this.title = title;
         this.text = text;
-        this.tags = tags;
         this.likesCount = likesCount;
         this.commentsCount = commentsCount;
     }
