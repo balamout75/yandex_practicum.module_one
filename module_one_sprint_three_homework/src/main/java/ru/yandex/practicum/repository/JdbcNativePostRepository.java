@@ -14,7 +14,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Repository
 public class JdbcNativePostRepository implements PostRepository {
@@ -56,6 +59,7 @@ public class JdbcNativePostRepository implements PostRepository {
             }
         }, keyHolder);
         long id = keyHolder.getKey().longValue();
+        this.saveTags(id, postDTO.tags());
         return getById(id);
     }
 
@@ -63,6 +67,7 @@ public class JdbcNativePostRepository implements PostRepository {
     public Post update(Long id, PostDTO postDTO) {
         jdbcTemplate.update(UpdateByIdSQL,
                 postDTO.title(), postDTO.text(), id);
+        this.saveTags(id, postDTO.tags());
         return getById(id);
     }
 
@@ -82,4 +87,18 @@ public class JdbcNativePostRepository implements PostRepository {
         jdbcTemplate.update(UpdateImageByIdSQL, fileName, id);
        return true;
     }
+
+    public void saveTags (Long id, String[] tags) {
+        //проверка на уникальность
+        Set<Character> distinct = new HashSet<>();
+        Stream.of(tags).filter(m -> distinct.add(m.charAt(0)))
+                .forEach(s -> saveTag(id,s));
+    }
+    public void saveTag (Long id, String tags {
+        Stream<String> strings = Stream.of(tags);
+        strings.forEach(s -> s.length());
+        //jdbcTemplate.update(UpdateImageByIdSQL, fileName, id);
+        return true;
+    }
+
 }

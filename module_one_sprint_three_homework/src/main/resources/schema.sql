@@ -14,6 +14,20 @@ create table if not exists comments(
     text varchar NOT NULL,
     postid bigint REFERENCES posts(id));
 
+-- drop table if exists tags;
+create table if not exists tags(
+    id bigserial primary key,
+    tag varchar NOT NULL);
+
+-- drop table if exists tags;
+create table if not exists posts_tags(
+    postid bigserial primary key,
+    tagid varchar NOT NULL
+    PRIMARY KEY (postid, tegid),
+    CONSTRAINT FK_POSTS FOREIGN KEY (postid) REFERENCES posts (id),
+    CONSTRAINT FK_TAGS FOREIGN KEY (tagid) REFERENCES tags (id));
+
+
 insert into posts(title, text, image, likesCount, commentsCount) values ('Первое сообщение', 'Бла', 'Peschannaya.png', 1, 0);
 insert into posts(title, text, image, likesCount, commentsCount) values ('Второе сообщение', 'Бла бла','Peschannaya.png', 2, 0);
 insert into posts(title, text, image, likesCount, commentsCount) values ('третье сообщение', 'Бла бла бла', 'Peschannaya.png',3, 0);
