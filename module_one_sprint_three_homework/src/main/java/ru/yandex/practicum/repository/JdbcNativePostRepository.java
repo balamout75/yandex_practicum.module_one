@@ -30,6 +30,9 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String UpdateImageByIdSQL = "update posts set image = ? where id = ?";
     private static final String SelectByIdSQL = "SELECT * FROM posts WHERE id = ?";
     private static final String DeleteByIdSQL = "delete from posts where id = ?";
+    private static final String InsertTagSQL="insert into tags(tag) values(?)";
+    private static final String InsertPostTagSQL="insert into postsandtags (post,tag) values(?, ?)";
+    private static final String DeleteTagByIdSQL = "delete from postsandtags where post = ? and tag =?";
 
     public JdbcNativePostRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -94,11 +97,18 @@ public class JdbcNativePostRepository implements PostRepository {
         Stream.of(tags).filter(m -> distinct.add(m.charAt(0)))
                 .forEach(s -> saveTag(id,s));
     }
-    public void saveTag (Long id, String tags {
-        Stream<String> strings = Stream.of(tags);
-        strings.forEach(s -> s.length());
-        //jdbcTemplate.update(UpdateImageByIdSQL, fileName, id);
-        return true;
+    public void saveTag (Long postid, String tag) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement ps = con.prepareStatement(InsertTagSQL, new String[]{"id"});
+                ps.setString(1, tag);
+                return ps;
+            }
+        }, keyHolder);
+        long tagid = keyHolder.getKey().longValue();
+        jdbcTemplate.update(InsertPostTagSQL, postid, tagid);
     }
 
 }

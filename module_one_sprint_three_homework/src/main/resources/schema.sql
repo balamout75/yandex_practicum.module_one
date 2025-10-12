@@ -20,9 +20,9 @@ create table if not exists tags(
     tag varchar NOT NULL);
 
 -- drop table if exists tags;
-create table if not exists posts_tags(
-    postid bigserial primary key,
-    tagid varchar NOT NULL
+create table if not exists postsandtags(
+    post bigint NOT NULL,
+    tag bigint NOT NULL,
     PRIMARY KEY (postid, tegid),
     CONSTRAINT FK_POSTS FOREIGN KEY (postid) REFERENCES posts (id),
     CONSTRAINT FK_TAGS FOREIGN KEY (tagid) REFERENCES tags (id));
