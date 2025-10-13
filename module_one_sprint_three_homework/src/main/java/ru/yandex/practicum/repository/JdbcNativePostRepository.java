@@ -38,6 +38,9 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String SelectPostsCommentsCountByIdSQL="SELECT COUNT(*) FROM postsandtags WHERE post=?";
     private static final String SelectFileSuffixFromSeqSQL ="SELECT NEXTVAL('image_sequence')";
 
+    //Select posts.title, posts.text, posts.image, posts.likesCount from posts,postsandtags,tags
+    //where posts.id = postsandtags.post AND tags.id=postsandtags.tag and tags.tag ilike 'байкал' and posts.title ilike '%первое%';
+
 
 
 
@@ -51,6 +54,35 @@ public class JdbcNativePostRepository implements PostRepository {
     public List<Post> findAll() {
         return jdbcTemplate.query(SelectSQL,postRowMapper);
     }
+
+    @Override
+    public List<Post> findAll(List<String> searchwords, List<String> tags) {
+        String searchSubstring = searchwords.stream()
+                .map(String::toLowerCase)
+                .reduce((a, b) -> a + " " + b)
+                .orElse("");        // Handle empty stream case
+        String tagString = tags.stream()
+                .map(a -> "tags.tag ILIKE'"+a+"'")
+                .reduce((a, b) -> a + " AND " + b)
+                .orElse("");
+        String selectSQL = "Select posts.title, posts.text, posts.image, posts.likesCount from posts";
+        String whereSQL = "";
+        String prefixWhereSQL = "WHERE ";
+        if (!tagString.isEmpty()) {
+            selectSQL = selectSQL+",postsandtags,tags";
+            whereSQL=prefixWhereSQL+"postsandtags.post AND tags.id=postsandtags.tag AND "+tagString;
+            prefixWhereSQL = " AND ";
+        };
+        if (!searchSubstring.isEmpty()) {
+            whereSQL = whereSQL+prefixWhereSQL+"posts.title ilike '%"+searchSubstring+"%'";
+        };
+
+        System.out.println(selectSQL);
+        System.out.println(whereSQL);
+        System.out.println(selectSQL+" "+whereSQL);
+        return findAll();
+    }
+
 
     @Override
     public Post getById(Long id) {

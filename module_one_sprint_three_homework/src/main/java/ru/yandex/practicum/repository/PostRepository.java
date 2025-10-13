@@ -30,4 +30,6 @@ public interface PostRepository {
     Long getPostsCommentsCountById(Long id);
 
     String getFileSuffix();
+
+    List<Post> findAll(List<String> searchwords, List<String> tags);
 }
