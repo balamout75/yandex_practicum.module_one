@@ -35,7 +35,8 @@ public class PostController {
                                          @RequestParam("pageNumber") int pageNumber,
                                          @RequestParam("pageSize") int pageSize) {
         System.out.println("Вывели список постов "+search+" "+pageNumber+" "+pageSize);
-        List<Post> posts = service.findAll();
+
+        List<Post> posts = service.findAll(search, pageNumber, pageSize);
         List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
         return new ResponseEntity<>(new ResponceDTO(postDTOList,false,false,1), HttpStatus.OK);
     }

@@ -16,7 +16,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PostService {
@@ -29,7 +32,26 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public List<Post> findAll() {
+    public List<Post> findAll(String search, int pageNumber, int pageSize) {
+        System.out.println("строка поиска '"+search+"'");
+        search=search.replace("#"," #");
+        System.out.println("строка поиска '"+search+"'");
+        //String [] words=search.split("\\s+");
+        String [] words=search.split(" ");
+        System.out.println("слов в строке"+(words.length));
+        if (words.length>0) {
+            Map<Boolean, List<String>> partitioned = Stream.of(words)
+                    .collect(Collectors.partitioningBy(n -> n.charAt(0) == '#'));
+            List<String> searchwords = partitioned.get(false);
+            List<String> tags = partitioned.get(true).stream()
+                    .map(s -> s.substring(1))
+                    .filter(n -> !n.isEmpty())
+                    .toList();
+            System.out.println("Компоненты поиска (" + searchwords.size() + ")");
+            searchwords.forEach(System.out::println);
+            System.out.println("тэги (" + tags.size() + ")");
+            tags.forEach(System.out::println);
+        }
         return postRepository.findAll();
     }
 
