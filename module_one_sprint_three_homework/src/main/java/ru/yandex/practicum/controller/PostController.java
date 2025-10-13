@@ -31,10 +31,12 @@ public class PostController {
 
     //1 posts list returning
     @GetMapping
-    public ResponseEntity<?> getAllPosts() {
+    public ResponseEntity<?> getAllPosts(@RequestParam("search") String search,
+                                         @RequestParam("pageNumber") int pageNumber,
+                                         @RequestParam("pageSize") int pageSize) {
+        System.out.println("Вывели список постов "+search+" "+pageNumber+" "+pageSize);
         List<Post> posts = service.findAll();
         List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
-        System.out.println("Вывели список постов");
         return new ResponseEntity<>(new ResponceDTO(postDTOList,false,false,1), HttpStatus.OK);
     }
     //2 post getting
@@ -69,10 +71,10 @@ public class PostController {
 
     //6 increment likes counter
     @PostMapping("/{id}/likes")
-    public long like(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<Long> like(@PathVariable(name = "id") Long id) {
         System.out.println("New like");
-        //service.save(user);
-        return 2L;
+        Long likecounter = service.like(id);
+        return new ResponseEntity<>(likecounter, HttpStatus.OK);
     }
 
     //7 upload post image

@@ -22,4 +22,12 @@ public interface PostRepository {
     String getFileNameByPostId(Long id);
 
     boolean setFileNameByPostId(Long id, String fileName);
+
+    List<String> getTagsByPostId(Long id);
+
+    Long like(Long id);
+
+    Long getPostsCommentsCountById(Long id);
+
+    String getFileSuffix();
 }

@@ -65,12 +65,13 @@ public class PostService {
     public boolean uploadImage(Long id, MultipartFile file) {
         try {
             Path uploadDir = Paths.get(UPLOAD_DIR);
-            String fileName=file.getOriginalFilename();
+            String fileName=file.getOriginalFilename().replace(".","_"+postRepository.getFileSuffix()+".");
             System.out.println("сохранияем файл "+ fileName);
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
             Path filePath = uploadDir.resolve(fileName);
+
             System.out.println("полное имя "+ fileName);
             file.transferTo(filePath);
             return postRepository.setFileNameByPostId(id,fileName);
@@ -78,4 +79,6 @@ public class PostService {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
+    public Long like(Long id) { return postRepository.like(id); }
 }

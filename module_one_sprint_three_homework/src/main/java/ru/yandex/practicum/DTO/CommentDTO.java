@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record CommentDTO(
     @JsonProperty("id") long id,
     @JsonProperty("text") String text,
-    @JsonProperty("postid") long postid
+    @JsonProperty("postId") long postId
 ) {
     @JsonCreator
-    public CommentDTO(long id, String text, long postid) {
+    public CommentDTO(long id, String text, long postId) {
         this.id = id;
         this.text = text;
-        this.postid = postid;
+        this.postId = postId;
     }
 }
 

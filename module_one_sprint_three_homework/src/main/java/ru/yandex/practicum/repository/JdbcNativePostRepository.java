@@ -1,19 +1,16 @@
 package ru.yandex.practicum.repository;
 
-import org.springframework.core.io.Resource;
+
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.mapping.PostRowMapper;
+import ru.yandex.practicum.mapping.TagRowMapper;
 import ru.yandex.practicum.model.Post;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +21,8 @@ public class JdbcNativePostRepository implements PostRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final PostRowMapper postRowMapper;
-    private static final String SelectSQL = "SELECT id, title, text, image, likesCount, commentsCount FROM posts";
+    private final TagRowMapper tagRowMapper;
+    private static final String SelectSQL = "SELECT id, title, text, image, likesCount FROM posts";
     private static final String InsertSQL="insert into posts(title, text) values(?, ?)";
     private static final String UpdateByIdSQL = "update posts set title = ?, text = ?  where id = ?";
     private static final String UpdateImageByIdSQL = "update posts set image = ? where id = ?";
@@ -32,11 +30,21 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String DeleteByIdSQL = "delete from posts where id = ?";
     private static final String InsertTagSQL="insert into tags(tag) values(?)";
     private static final String InsertPostTagSQL="insert into postsandtags (post,tag) values(?, ?)";
-    private static final String DeleteTagByIdSQL = "delete from postsandtags where post = ? and tag =?";
+    private static final String DeleteTagsByPostIdSQL = "delete from postsandtags where post = ?";
+    private static final String SelectTagsByPostIdSQL = "SELECT tags.tag FROM tags, postsandtags WHERE postsandtags.post = ? and postsandtags.tag = tags.id";
+    private static final String SelectTagIdByTagSQL ="SELECT id FROM tags WHERE tag ILIKE ?";
+    private static final String IncrementlikesByIdSQL="UPDATE posts SET likesCount = likesCount+1 WHERE id=?";
+    private static final String SelectlikesByIdSQL="SELECT likesCount FROM posts WHERE id=?";
+    private static final String SelectPostsCommentsCountByIdSQL="SELECT COUNT(*) FROM postsandtags WHERE post=?";
+    private static final String SelectFileSuffixFromSeqSQL ="SELECT NEXTVAL('image_sequence')";
+
+
+
 
     public JdbcNativePostRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        postRowMapper=new PostRowMapper();
+        postRowMapper=new PostRowMapper(this);
+        tagRowMapper=new TagRowMapper();
     }
 
     @Override
@@ -52,14 +60,11 @@ public class JdbcNativePostRepository implements PostRepository {
     @Override
     public Post save(PostDTO postDTO) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement ps = con.prepareStatement(InsertSQL, new String[]{"id"});
-                ps.setString(1, postDTO.title());
-                ps.setString(2, postDTO.text());
-                return ps;
-            }
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(InsertSQL, new String[]{"id"});
+            ps.setString(1, postDTO.title());
+            ps.setString(2, postDTO.text());
+            return ps;
         }, keyHolder);
         long id = keyHolder.getKey().longValue();
         this.saveTags(id, postDTO.tags());
@@ -91,23 +96,55 @@ public class JdbcNativePostRepository implements PostRepository {
        return true;
     }
 
+    @Override
+    public List<String> getTagsByPostId(Long id) { return jdbcTemplate.query(SelectTagsByPostIdSQL,tagRowMapper, id); }
+
+    @Override
+    public Long like(Long id) {
+        jdbcTemplate.update(IncrementlikesByIdSQL, id);
+        return jdbcTemplate.queryForList(SelectlikesByIdSQL, Long.class, id).stream()
+                .findFirst()
+                .orElse(0L);
+    }
+
+    @Override
+    public Long getPostsCommentsCountById(Long id) {
+        return jdbcTemplate.queryForList(SelectPostsCommentsCountByIdSQL, Long.class, id).stream()
+                .findFirst()
+                .orElse(0L);
+    }
+
+    @Override
+    public String getFileSuffix() {
+        return jdbcTemplate.queryForList(SelectFileSuffixFromSeqSQL, String.class).stream()
+                .findFirst()
+                .orElse("");
+    }
+
     public void saveTags (Long id, String[] tags) {
-        //проверка на уникальность
+        //удаляем старые тэги
+        jdbcTemplate.update(DeleteTagsByPostIdSQL, id);
+        //проверка на повторение тэгов в массиве и их сохранение
         Set<Character> distinct = new HashSet<>();
         Stream.of(tags).filter(m -> distinct.add(m.charAt(0)))
                 .forEach(s -> saveTag(id,s));
     }
+
+    public Long registerNewTag(String tag) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(InsertTagSQL, new String[]{"id"});
+            ps.setString(1, tag);
+            return ps;
+        }, keyHolder);
+        return keyHolder.getKey().longValue();
+    }
+
     public void saveTag (Long postid, String tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement ps = con.prepareStatement(InsertTagSQL, new String[]{"id"});
-                ps.setString(1, tag);
-                return ps;
-            }
-        }, keyHolder);
-        long tagid = keyHolder.getKey().longValue();
+        List<Long> tagsids = jdbcTemplate.queryForList(SelectTagIdByTagSQL, Long.class,tag);
+        long tagid = tagsids.stream().findFirst()
+                .orElseGet(() -> registerNewTag(tag));
         jdbcTemplate.update(InsertPostTagSQL, postid, tagid);
     }
 

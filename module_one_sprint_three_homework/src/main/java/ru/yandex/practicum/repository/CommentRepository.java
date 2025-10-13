@@ -43,7 +43,7 @@ public class CommentRepository {
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement ps = con.prepareStatement(PostInsertingSQL, new String[]{"id"});
                 ps.setString(1, commentDTO.text());
-                ps.setLong(2, commentDTO.postid());
+                ps.setLong(2, commentDTO.postId());
                 return ps;
             }
         }, keyHolder);
