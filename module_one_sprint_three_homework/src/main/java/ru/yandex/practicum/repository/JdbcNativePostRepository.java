@@ -62,7 +62,7 @@ public class JdbcNativePostRepository implements PostRepository {
                 .reduce((a, b) -> a + " " + b)
                 .orElse("");        // Handle empty stream case
         String tagString = tags.stream()
-                .map(a -> "tags.tag ILIKE'"+a+"'")
+                .map(a -> "tags.tag ILIKE '"+a+"'")
                 .reduce((a, b) -> a + " AND " + b)
                 .orElse("");
         String selectSQL = "Select posts.title, posts.text, posts.image, posts.likesCount from posts";
@@ -70,11 +70,11 @@ public class JdbcNativePostRepository implements PostRepository {
         String prefixWhereSQL = "WHERE ";
         if (!tagString.isEmpty()) {
             selectSQL = selectSQL+",postsandtags,tags";
-            whereSQL=prefixWhereSQL+"postsandtags.post AND tags.id=postsandtags.tag AND "+tagString;
+            whereSQL=prefixWhereSQL+"posts.id = postsandtags.post AND tags.id=postsandtags.tag AND "+tagString;
             prefixWhereSQL = " AND ";
         };
         if (!searchSubstring.isEmpty()) {
-            whereSQL = whereSQL+prefixWhereSQL+"posts.title ilike '%"+searchSubstring+"%'";
+            whereSQL = whereSQL+prefixWhereSQL+"posts.title ILIKE '%"+searchSubstring+"%'";
         };
 
         System.out.println(selectSQL);
