@@ -1,4 +1,4 @@
-package ru.yandex.practicum.controller;
+package ru.yandex.practicum;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;

@@ -9,12 +9,13 @@ public class Post {
     String image;
     long likesCount;
     long commentsCount;
+    long total_records;
 
     public Post() {
 
     }
 
-    public Post(long id, String title, String text, String[] tags, String image, long likesCount, long commentsCount) {
+    public Post(long id, String title, String text, String[] tags, String image, long likesCount, long commentsCount, long total_records) {
         this.id = id;
         this.title = title;
         this.text = text;
@@ -22,6 +23,7 @@ public class Post {
         this.image = image;
         this.likesCount = likesCount;
         this.commentsCount = commentsCount;
+        this.total_records = total_records;
     }
 
     public String getImage() {
@@ -30,14 +32,6 @@ public class Post {
 
     public void setImage(String image) {
         this.image = image;
-    }
-
-    public Post(long id, String title, String text, long likesCount, long commentsCount) {
-        this.id = id;
-        this.title = title;
-        this.text = text;
-        this.likesCount = likesCount;
-        this.commentsCount = commentsCount;
     }
 
     public long getId() {
@@ -86,5 +80,13 @@ public class Post {
 
     public void setCommentsCount(long commentsCount) {
         this.commentsCount = commentsCount;
+    }
+
+    public long getTotal_records() {
+        return total_records;
+    }
+
+    public void setTotal_records(long total_records) {
+        this.total_records = total_records;
     }
 }

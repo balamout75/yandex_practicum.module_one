@@ -17,7 +17,6 @@ public class PostRowMapper implements RowMapper<Post> {
 
     @Override
     public Post mapRow(ResultSet rs, int rowNum) throws SQLException {
-        String [] tags = new String[]{"#раз","#два","#три"};
         Long id=rs.getLong("id");
         Post post = new Post(id,
                 rs.getString("title"),
@@ -25,7 +24,8 @@ public class PostRowMapper implements RowMapper<Post> {
                 postRepository.getTagsByPostId(id).toArray(String[]::new),
                 rs.getString("image"),
                 rs.getLong("likescount"),
-                postRepository.getPostsCommentsCountById(id));
+                postRepository.getPostsCommentsCountById(id),
+                rs.getLong("total_records"));
         return post;
     }
 }

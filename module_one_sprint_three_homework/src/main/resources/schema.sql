@@ -39,8 +39,9 @@ CREATE SEQUENCE image_sequence
 insert into posts(title, text, image, likesCount) values ('Первое сообщение', 'Бла', 'Peschannaya.png', 1);
 insert into posts(title, text, image, likesCount) values ('Второе сообщение', 'Бла бла','Peschannaya.png', 2);
 insert into posts(title, text, image, likesCount) values ('третье сообщение', 'Бла бла бла', 'Peschannaya.png',3);
-insert into posts(title, text, image, likesCount) values ('Второе сообщение', 'Бла бла','Peschannaya.png', 2);
-insert into posts(title, text, image, likesCount) values ('третье сообщение', 'Бла бла бла', 'Peschannaya.png',3);
+insert into posts(title, text, image, likesCount) values ('Четвертое сообщение', 'Бла бла','Peschannaya.png', 2);
+insert into posts(title, text, image, likesCount) values ('Пятое сообщение', 'Бла бла бла', 'Peschannaya.png',3);
+insert into posts(title, text, image, likesCount) values ('Шестое сообщение', 'Бла бла бла', 'Peschannaya.png',3);
 
 insert into tags(tag) values ('Байкал'),('Аршан'),('горы');
 

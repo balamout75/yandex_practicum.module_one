@@ -1,4 +1,4 @@
-package ru.yandex.practicum.controller;
+package ru.yandex.practicum;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +16,7 @@ import ru.yandex.practicum.service.PostService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -38,7 +39,18 @@ public class PostController {
 
         List<Post> posts = service.findAll(search, pageNumber, pageSize);
         List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
-        return new ResponseEntity<>(new ResponceDTO(postDTOList,false,false,1), HttpStatus.OK);
+        long total_count= Optional.of(posts.getFirst().getTotal_records()).orElse(0L);
+
+        System.out.println("Записей "+total_count+" текущая страница "+pageNumber+" записей на странице "+pageSize);
+
+        boolean hasPrev=pageNumber>1; System.out.println("hasPrev "+hasPrev);
+        boolean hasNext=((long) pageNumber *pageSize)<total_count; System.out.println("hasNext "+hasNext);
+        System.out.println("последняя страница "+(int) Math.ceil((double) total_count / pageSize));
+        return new ResponseEntity<>(new ResponceDTO(postDTOList,
+                                        pageNumber>1,
+                                        ((long) pageNumber * pageSize)<total_count,
+                                        (int) Math.ceil((double) total_count / pageSize)),
+                                    HttpStatus.OK);
     }
     //2 post getting
     @GetMapping("/{id}")

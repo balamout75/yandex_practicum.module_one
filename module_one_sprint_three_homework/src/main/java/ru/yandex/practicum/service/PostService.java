@@ -33,29 +33,26 @@ public class PostService {
     }
 
     public List<Post> findAll(String search, int pageNumber, int pageSize) {
-        String trimmedsearch=search.trim();
-        if (true) {
-            System.out.println("строка поиска '"+trimmedsearch+"'");
-            String taggedsearch=trimmedsearch.replace("#"," #").trim();
-            System.out.println("строка поиска '"+taggedsearch+"'");
-            String [] words=taggedsearch.split("\\s+");
-            //String [] words=search.split(" ");
+        System.out.println("строка поиска '"+search+"'");
+        String taggedsearch=search.replace("#"," #"); //.trim();
+        //System.out.println("строка поиска '"+taggedsearch+"'");
+        String [] words=taggedsearch.split("\\s+");
+        //String [] words=search.split(" ");
 
-            System.out.println("слов в строке"+(words.length));
-            Map<Boolean, List<String>> partitioned = Stream.of(words)
+        System.out.println("слов в строке"+(words.length));
+        Map<Boolean, List<String>> partitioned = Stream.of(words)
                     .filter(n -> !n.isBlank())
                     .collect(Collectors.partitioningBy(n -> n.charAt(0) == '#'));
-            List<String> searchwords = partitioned.get(false);
-            List<String> tags = partitioned.get(true).stream()
+        List<String> searchwords = partitioned.get(false);
+        List<String> tags = partitioned.get(true).stream()
                     .map(s -> s.substring(1))
                     .filter(n -> !n.isBlank())
                     .toList();
-            System.out.println("Компоненты поиска (" + searchwords.size() + ")");
-            searchwords.forEach(System.out::println);
-            System.out.println("тэги (" + tags.size() + ")");
-            tags.forEach(System.out::println);
-            return postRepository.findAll(searchwords,tags);
-        } else return postRepository.findAll();
+        System.out.println("Компоненты поиска (" + searchwords.size() + ")");
+        searchwords.forEach(System.out::println);
+        System.out.println("тэги (" + tags.size() + ")");
+        tags.forEach(System.out::println);
+        return postRepository.findAll(searchwords, tags, pageNumber, pageSize);
     }
 
     public Post save(PostDTO postDTO) {

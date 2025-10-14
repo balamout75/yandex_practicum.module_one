@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PostRepository {
 
-    List<Post> findAll();
+    //List<Post> findAll();
 
     Post save(PostDTO user);
 
@@ -31,5 +31,7 @@ public interface PostRepository {
 
     String getFileSuffix();
 
-    List<Post> findAll(List<String> searchwords, List<String> tags);
+    List<Post> findAll(List<String> searchwords, List<String> tags, int pageNumber, int pageSize);
+
+    //List<Post> findAll(List<String> searchwords, List<String> tags, Integer pageNumber, Integer pageSize);
 }

@@ -22,11 +22,11 @@ public class JdbcNativePostRepository implements PostRepository {
     private final JdbcTemplate jdbcTemplate;
     private final PostRowMapper postRowMapper;
     private final TagRowMapper tagRowMapper;
-    private static final String SelectSQL = "SELECT id, title, text, image, likesCount FROM posts";
+    private static final String SelectSQL = "SELECT id, title, text, image, likesCount, COUNT(*) OVER() AS total_records FROM posts";
     private static final String InsertSQL="insert into posts(title, text) values(?, ?)";
     private static final String UpdateByIdSQL = "update posts set title = ?, text = ?  where id = ?";
     private static final String UpdateImageByIdSQL = "update posts set image = ? where id = ?";
-    private static final String SelectByIdSQL = "SELECT * FROM posts WHERE id = ?";
+    private static final String SelectByIdSQL = "SELECT *, COUNT(*) OVER() AS total_records FROM posts WHERE id = ?";
     private static final String DeleteByIdSQL = "delete from posts where id = ?";
     private static final String InsertTagSQL="insert into tags(tag) values(?)";
     private static final String InsertPostTagSQL="insert into postsandtags (post,tag) values(?, ?)";
@@ -38,49 +38,62 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String SelectPostsCommentsCountByIdSQL="SELECT COUNT(*) FROM postsandtags WHERE post=?";
     private static final String SelectFileSuffixFromSeqSQL ="SELECT NEXTVAL('image_sequence')";
 
-    //Select posts.title, posts.text, posts.image, posts.likesCount from posts,postsandtags,tags
-    //where posts.id = postsandtags.post AND tags.id=postsandtags.tag and tags.tag ilike 'байкал' and posts.title ilike '%первое%';
+    private static final String headOfSelectSQL = "Select posts.id, posts.title, posts.text, posts.image, posts.likesCount, COUNT(*) OVER() AS total_records from posts";
+    private static final String joinFromPartOfSelectSQL = ",postsandtags,tags";
+    private static final String joinWherePartOfSelectSQL ="posts.id = postsandtags.post AND tags.id=postsandtags.tag AND ";
+    private static final String initialWherePrefixSQL = " WHERE ";
+    private static final String andPrefixSQL = " AND ";
+    private static final String tagIlikeSQL = "tags.tag ILIKE ";
+    private static final String searchIlikeSQL = "posts.title ILIKE ";
+    private static final String pagenabeTaleSQL = " LIMIT ? OFFSET ?";
 
-
-
+    private boolean total_records_not_initialized;
+    private long total_records;
 
     public JdbcNativePostRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         postRowMapper=new PostRowMapper(this);
         tagRowMapper=new TagRowMapper();
+        //total_records_not_initialized=true;
+        //total_records=0'';
     }
 
+    /*
     @Override
     public List<Post> findAll() {
         return jdbcTemplate.query(SelectSQL,postRowMapper);
     }
+    */
+
 
     @Override
-    public List<Post> findAll(List<String> searchwords, List<String> tags) {
+    public List<Post> findAll(List<String> searchwords, List<String> tags, int pageNumber, int pageSize) {
         String searchSubstring = searchwords.stream()
                 .map(String::toLowerCase)
                 .reduce((a, b) -> a + " " + b)
                 .orElse("");        // Handle empty stream case
         String tagString = tags.stream()
-                .map(a -> "tags.tag ILIKE '"+a+"'")
-                .reduce((a, b) -> a + " AND " + b)
+                .map(a -> tagIlikeSQL+"'"+a+"'")
+                .reduce((a, b) -> a + andPrefixSQL + b)
                 .orElse("");
-        String selectSQL = "Select posts.title, posts.text, posts.image, posts.likesCount from posts";
+        String selectSQL = headOfSelectSQL;
         String whereSQL = "";
-        String prefixWhereSQL = "WHERE ";
+        String wherePrefixSQL = initialWherePrefixSQL;
         if (!tagString.isEmpty()) {
-            selectSQL = selectSQL+",postsandtags,tags";
-            whereSQL=prefixWhereSQL+"posts.id = postsandtags.post AND tags.id=postsandtags.tag AND "+tagString;
-            prefixWhereSQL = " AND ";
+            selectSQL = selectSQL+joinFromPartOfSelectSQL;
+            whereSQL = wherePrefixSQL+joinWherePartOfSelectSQL+tagString;
+            wherePrefixSQL = andPrefixSQL;
         };
         if (!searchSubstring.isEmpty()) {
-            whereSQL = whereSQL+prefixWhereSQL+"posts.title ILIKE '%"+searchSubstring+"%'";
+            whereSQL = whereSQL+wherePrefixSQL+searchIlikeSQL+"'%"+searchSubstring+"%'";
         };
-
-        System.out.println(selectSQL);
-        System.out.println(whereSQL);
-        System.out.println(selectSQL+" "+whereSQL);
-        return findAll();
+        selectSQL = selectSQL+whereSQL+pagenabeTaleSQL;
+        System.out.println(selectSQL + " " + pageSize +" "+pageNumber);
+        //jdbcTemplate.query
+        total_records_not_initialized=true;
+        total_records=0;
+        return jdbcTemplate.query(selectSQL,postRowMapper, Integer.valueOf(pageSize), Integer.valueOf(pageSize*(pageNumber-1)));
+        //return findAll();
     }
 
 
