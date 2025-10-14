@@ -1,4 +1,4 @@
-package ru.yandex.practicum; // Класс находится в пакете с контроллерами
+package ru.yandex.practicum.controller; // Класс находится в пакете с контроллерами
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
