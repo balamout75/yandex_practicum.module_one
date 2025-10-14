@@ -51,12 +51,10 @@ class PostControllerIntegrationTest {
                     VALUES ('Первое сообщение', 'Бла', 'Peschannaya.png', 1)
                 """);
         jdbcTemplate.execute("""
-                    insert into posts(title, text, image, likesCount) values ('Второе сообщение', 'Бла бла','Peschannaya.png', 2);
+                    INSERT INTO posts(title, text, image, likesCount) 
+                    VALUES ('Второе сообщение', 'Бла бла','Peschannaya.png', 2)
                 """);
     }
-
-    INSERT INTO posts (title, text, image, likesCount) values ('Первое сообщение', 'Бла', 'Peschannaya.png', 1);
-    insert into posts(title, text, image, likesCount) values ('Второе сообщение', 'Бла бла','Peschannaya.png', 2);
 
     @Test
     void getUsers_returnsJsonArray() throws Exception {
