@@ -9,14 +9,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan("ru.yandex.practicum")
+@ComponentScan(basePackages = {"ru.yandex.practicum"})
 @PropertySource("classpath:application.properties")
-/*public class WebConfiguration implements WebMvcConfigurer {
+public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**");
     }
 }
-*/
-public class WebConfiguration{};
+
+//public class WebConfiguration{};
 

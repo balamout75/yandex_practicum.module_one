@@ -1,18 +1,12 @@
 package ru.yandex.practicum.Service;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import ru.yandex.practicum.configuration.DataSourceConfiguration;
-import ru.yandex.practicum.model.Post;
-import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.JdbcNativePostRepository;
 import ru.yandex.practicum.repository.PostRepository;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -63,8 +63,8 @@ public class PostService {
         return postRepository.update(id, postDTO);
     }
 
-    public void deleteById(Long id) {
-        postRepository.deleteById(id);
+    public boolean deleteById(Long id) {
+        return postRepository.deleteById(id);
     }
 
     public Post getById(Long id) {

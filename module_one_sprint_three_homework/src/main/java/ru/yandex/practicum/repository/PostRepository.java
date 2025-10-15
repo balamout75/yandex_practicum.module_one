@@ -15,7 +15,7 @@ public interface PostRepository {
 
     Post update(Long id, PostDTO postDTO);
 
-    void deleteById(Long id);
+    boolean  deleteById(Long id);
 
     Post getById(Long id);
 
@@ -33,5 +33,4 @@ public interface PostRepository {
 
     List<Post> findAll(List<String> searchwords, List<String> tags, int pageNumber, int pageSize);
 
-    //List<Post> findAll(List<String> searchwords, List<String> tags, Integer pageNumber, Integer pageSize);
 }

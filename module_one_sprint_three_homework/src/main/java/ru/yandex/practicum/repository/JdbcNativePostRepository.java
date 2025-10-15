@@ -1,6 +1,7 @@
 package ru.yandex.practicum.repository;
 
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -38,7 +39,9 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String SelectPostsCommentsCountByIdSQL="SELECT COUNT(*) FROM postsandtags WHERE post=?";
     private static final String SelectFileSuffixFromSeqSQL ="SELECT NEXTVAL('image_sequence')";
 
-    private static final String headOfSelectSQL = "Select posts.id, posts.title, posts.text, posts.image, posts.likesCount, COUNT(*) OVER() AS total_records from posts";
+
+    private static final String titleForming = "CASE WHEN LENGTH(posts.title)>128 THEN LEFT(posts.title,128)||'...' ELSE posts.title END AS title";
+    private static final String headOfSelectSQL = "Select posts.id, "+titleForming+", posts.text, posts.image, posts.likesCount, COUNT(*) OVER() AS total_records from posts";
     private static final String joinFromPartOfSelectSQL = ",postsandtags,tags";
     private static final String joinWherePartOfSelectSQL ="posts.id = postsandtags.post AND tags.id=postsandtags.tag AND ";
     private static final String initialWherePrefixSQL = " WHERE ";
@@ -54,17 +57,7 @@ public class JdbcNativePostRepository implements PostRepository {
         this.jdbcTemplate = jdbcTemplate;
         postRowMapper=new PostRowMapper(this);
         tagRowMapper=new TagRowMapper();
-        //total_records_not_initialized=true;
-        //total_records=0'';
     }
-
-    /*
-    @Override
-    public List<Post> findAll() {
-        return jdbcTemplate.query(SelectSQL,postRowMapper);
-    }
-    */
-
 
     @Override
     public List<Post> findAll(List<String> searchwords, List<String> tags, int pageNumber, int pageSize) {
@@ -93,7 +86,6 @@ public class JdbcNativePostRepository implements PostRepository {
         total_records_not_initialized=true;
         total_records=0;
         return jdbcTemplate.query(selectSQL,postRowMapper, Integer.valueOf(pageSize), Integer.valueOf(pageSize*(pageNumber-1)));
-        //return findAll();
     }
 
 
@@ -125,8 +117,13 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public void deleteById(Long id) {
-        jdbcTemplate.update(DeleteByIdSQL, id);
+    public boolean deleteById(Long id) {
+        try {
+            jdbcTemplate.update(DeleteByIdSQL, id);
+            return true;
+        } catch (DataAccessException e) {
+            return false;
+        }
     }
 
     @Override

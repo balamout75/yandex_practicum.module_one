@@ -1,9 +1,11 @@
 package ru.yandex.practicum.controller;
 
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.CommentDTO;
@@ -16,6 +18,7 @@ import ru.yandex.practicum.service.PostService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 
 @CrossOrigin
 @RestController
@@ -30,7 +33,8 @@ public class PostController {
     }
 
     //1 posts list returning
-    @GetMapping
+
+    @GetMapping()
     public ResponseEntity<?> getAllPosts(@RequestParam("search") String search,
                                          @RequestParam("pageNumber") int pageNumber,
                                          @RequestParam("pageSize") int pageSize) {
@@ -51,6 +55,7 @@ public class PostController {
                                         (int) Math.ceil((double) total_count / pageSize)),
                                     HttpStatus.OK);
     }
+
     //2 post getting
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable(name = "id") Long id) {
@@ -63,7 +68,7 @@ public class PostController {
     @PostMapping
     public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO) {
         System.out.println("Post creation");
-        return new ResponseEntity<>(postMapper.toPostDTO(service.save(postDTO)), HttpStatus.OK);
+        return new ResponseEntity<>(postMapper.toPostDTO(service.save(postDTO)), HttpStatus.CREATED);
     }
 
     //4 update post
@@ -76,9 +81,9 @@ public class PostController {
 
     //5 update post
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable(name = "id") Long id) {
-        System.out.println("Post deleting");
-        //service.deleteById(id);
+    public ResponseEntity<String> delete(@PathVariable(name = "id") Long id) {
+        if (service.deleteById(id)) return ResponseEntity.status(HttpStatus.OK).body("Record deleted");
+        else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Can't delete record");
     }
 
     //6 increment likes counter
@@ -92,26 +97,23 @@ public class PostController {
     //7 upload post image
     @PutMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Resource> uploadImage(@PathVariable("id") Long id,
-                                                @RequestParam("image") MultipartFile file/*,
-                                                @RequestParam("filename") String filename*/) throws Exception {
+                                                @RequestParam("image") MultipartFile file) throws Exception {
 
         System.out.println("файл сохраняем");
         if (file.isEmpty()) {
             System.out.println("файл пустой");
             return ResponseEntity.badRequest()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(service.getImage(id));
+                    .body(null);
         }
         boolean ok = service.uploadImage(id, file);
         if (!ok) {
             System.out.println("файл не сохранили");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(service.getImage(id));
+                    .body(null);
+
         }
         System.out.println("Да все вроде хорошо");
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(service.getImage(id));
     }
@@ -120,8 +122,12 @@ public class PostController {
     @GetMapping(value = "/{id}/image")
     public ResponseEntity<Resource> getImage(@PathVariable("id") Long id) {
         Resource file = service.getImage(id);
+        if (file == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.IMAGE_PNG)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
                 .body(file);
     }
 
