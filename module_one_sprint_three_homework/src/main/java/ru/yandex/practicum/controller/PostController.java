@@ -114,7 +114,8 @@ public class PostController {
         }
         System.out.println("Да все вроде хорошо");
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.IMAGE_PNG)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
                 .body(service.getImage(id));
     }
 

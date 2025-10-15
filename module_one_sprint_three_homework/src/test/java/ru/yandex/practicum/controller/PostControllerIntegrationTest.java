@@ -1,21 +1,41 @@
 package ru.yandex.practicum.controller;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import ru.yandex.practicum.configuration.DataSourceConfiguration;
+import ru.yandex.practicum.WebConfiguration;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/*@SpringJUnitConfig(classes = {
+
+
+@SpringJUnitConfig(classes = {
         DataSourceConfiguration.class,
         WebConfiguration.class,
 })
 @WebAppConfiguration
-@TestPropertySource(locations = "classpath:test-application.properties")*/
+@TestPropertySource(locations = "classpath:test-application.properties")
 class PostControllerIntegrationTest {
 
-    /*
     @Autowired
     private WebApplicationContext wac;
     @Autowired
@@ -88,13 +108,13 @@ class PostControllerIntegrationTest {
     }
 
     @Test
-    void uploadAndDownloadAvatar_success() throws Exception {
+    void uploadAndDownloadImage_success() throws Exception {
         byte[] pngStub = new byte[]{(byte) 137, 80, 78, 71};
         MockMultipartFile file = new MockMultipartFile("image", "picture.png", "image/png", pngStub);
 
-        mockMvc.perform(multipart("/api/posts/{id}/image", 6L).file(file))
-                .andExpect(status().isOk())
-                .andExpect(content().string("image uploaded"));
+        mockMvc.perform(multipart(HttpMethod.PUT,"/api/posts/{id}/image", 6L).file(file))
+                .andExpect(status().isOk());
+                //.andExpect(content().string("image uploaded"));
 
         mockMvc.perform(get("/api/posts/{id}/image", 6L))
                 .andExpect(status().isOk())
@@ -102,36 +122,32 @@ class PostControllerIntegrationTest {
                 .andExpect(header().string("Cache-Control", "no-store"))
                 .andExpect(content().bytes(pngStub));
     }
-
+    /*
     @Test
     void uploadAvatar_emptyFile_badRequest() throws Exception {
-        MockMultipartFile empty = new MockMultipartFile("file", "empty.png", "image/png", new byte[0]);
+        MockMultipartFile empty = new MockMultipartFile("image", "empty.png", "image/png", new byte[0]);
 
-        mockMvc.perform(multipart("/api/users/{id}/avatar", 1L).file(empty))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("empty file"));
+        mockMvc.perform(multipart(HttpMethod.PUT,"/api/posts/{id}/image", 1L).file(empty))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void uploadAvatar_userNotFound_404() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("file", "avatar.png", "image/png", new byte[]{1, 2, 3});
+        MockMultipartFile file = new MockMultipartFile("image", "image.png", "image/png", new byte[]{1, 2, 3});
 
-        mockMvc.perform(multipart("/api/users/{id}/avatar", 999L).file(file))
-                .andExpect(status().isNotFound())
-                .andExpect(content().string("user not found"));
-    }
-
-    @Test
-    void getAvatar_userHasNoAvatar_404() throws Exception {
-        mockMvc.perform(get("/api/users/{id}/avatar", 2L))
+        mockMvc.perform(multipart(HttpMethod.PUT,"/api/posts/{id}/image", 999L).file(file))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getAvatar_userNotFound_404() throws Exception {
-        mockMvc.perform(get("/api/users/{id}/avatar", 777L))
+    void getImage_postHasNoImage_404() throws Exception {
+        mockMvc.perform(get("/api/posts/{id}/image", 6L))
                 .andExpect(status().isNotFound());
     }
 
-     */
+    @Test
+    void getImage_postNotFound_404() throws Exception {
+        mockMvc.perform(get("/api/posts/{id}/image", 777L))
+                .andExpect(status().isNotFound());
+    }*/
 }

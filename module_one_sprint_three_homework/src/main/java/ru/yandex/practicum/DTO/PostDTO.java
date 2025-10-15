@@ -2,6 +2,7 @@ package ru.yandex.practicum.DTO;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotEmpty;
 
 public record PostDTO(
         @JsonProperty("id") long id,

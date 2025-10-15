@@ -88,6 +88,12 @@ public class JdbcNativePostRepository implements PostRepository {
         return jdbcTemplate.query(selectSQL,postRowMapper, Integer.valueOf(pageSize), Integer.valueOf(pageSize*(pageNumber-1)));
     }
 
+    @Override
+    public boolean existsById(Long id) {
+         Integer userCount = jdbcTemplate.queryForObject("select count(*) from posts where id=?", Integer.class, id);
+         return userCount != null && userCount > 0;
+    }
+
 
     @Override
     public Post getById(Long id) {

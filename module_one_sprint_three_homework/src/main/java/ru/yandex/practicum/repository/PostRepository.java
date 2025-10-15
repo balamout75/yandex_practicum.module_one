@@ -33,4 +33,5 @@ public interface PostRepository {
 
     List<Post> findAll(List<String> searchwords, List<String> tags, int pageNumber, int pageSize);
 
+    boolean existsById(Long id);
 }

@@ -103,4 +103,7 @@ public class PostService {
     }
 
     public Long like(Long id) { return postRepository.like(id); }
+    public boolean exists(Long id) { return postRepository.existsById(id);
+    }
+
 }
