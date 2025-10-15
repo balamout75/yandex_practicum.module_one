@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"ru.yandex.practicum"})
+@ComponentScan("ru.yandex.practicum")
 @PropertySource("classpath:application.properties")
 /*public class WebConfiguration implements WebMvcConfigurer {
     @Override

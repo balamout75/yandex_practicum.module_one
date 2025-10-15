@@ -57,15 +57,16 @@ class PostControllerIntegrationTest {
     }
 
     @Test
-    void getUsers_returnsJsonArray() throws Exception {
-        mockMvc.perform(get("/api/users"))
+    void getPosts_returnsJsonArray() throws Exception {
+        mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=5"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].firstName").value("Иван"))
-                .andExpect(jsonPath("$[1].firstName").value("Мария"));
+                .andExpect(jsonPath("$[0].title").value("Первое сообщение"))
+                .andExpect(jsonPath("$[1].title").value("Второе сообщение"));
     }
 
+    /*
     @Test
     void createUser_acceptsJson_andPersists() throws Exception {
         String json = """
@@ -140,4 +141,6 @@ class PostControllerIntegrationTest {
         mockMvc.perform(get("/api/users/{id}/avatar", 777L))
                 .andExpect(status().isNotFound());
     }
+
+     */
 }
