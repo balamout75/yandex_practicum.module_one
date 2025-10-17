@@ -1,22 +1,30 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.configuration;
 
+import jakarta.validation.Validator;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import ru.yandex.practicum.validator.PostDtoValidator;
 
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = {"ru.yandex.practicum"})
 @PropertySource("classpath:application.properties")
-public class WebConfiguration implements WebMvcConfigurer {
+/*public class WebConfiguration implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**");
     }
-}
+}*/
 
-//public class WebConfiguration{};
+public class WebConfiguration{
+    @Bean
+    public PostDtoValidator postDtoValidator() {
+        return new PostDtoValidator();
+    }
+};
 

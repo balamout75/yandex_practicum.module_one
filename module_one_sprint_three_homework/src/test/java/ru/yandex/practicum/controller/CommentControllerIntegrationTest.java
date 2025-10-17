@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
-class PostControllerIntegrationTest {
+class CommentControllerIntegrationTest {
 
     @Autowired
     private WebApplicationContext wac;
@@ -49,40 +49,37 @@ class PostControllerIntegrationTest {
     }
 
     @Test
-    void getPosts_returnsJsonArray() throws Exception {
-        mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=5"))
+    void getComments_returnsJsonArray() throws Exception {
+        mockMvc.perform(get("/api/posts/{postid}/comments",1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$['posts']",hasSize(5)))
-                .andExpect(jsonPath("$['posts'][0].title").value("Чистое синее озеро, белый песок, красочные скалы, хвойный лес — именно таким волшебным сочетанием природных даров отличается бух..."))
-                .andExpect(jsonPath("$['posts'][0].commentsCount").value(3))
-                .andExpect(jsonPath("$['posts'][1].text").value("Бла бла"))
-                .andExpect(jsonPath("$['posts'][1].image").value("Peschannaya.png"))
-                .andExpect(jsonPath("$['posts'][1].likesCount").value(2))
-                .andExpect(jsonPath("$['posts'][1].commentsCount").value(1))
-                .andExpect(jsonPath("$.hasPrev").value(false))
-                .andExpect(jsonPath("$.hasNext").value(true))
-                .andExpect(jsonPath("$.lastPage").value(2));
+                .andExpect(jsonPath("$",hasSize(3)))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].text").value("1-1"))
+                .andExpect(jsonPath("$[0].postId").value(1))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].text").value("2-1"))
+                .andExpect(jsonPath("$[1].postId").value(1))
+                .andExpect(jsonPath("$[2].id").value(3))
+                .andExpect(jsonPath("$[2].text").value("3-1"))
+                .andExpect(jsonPath("$[2].postId").value(1));
     }
 
     @Test
-    void getPostById_returnsJsonArray() throws Exception {
-        mockMvc.perform(get("/api/posts/2"))
+    void getCommentById_returnsJsonArray() throws Exception {
+        mockMvc.perform(get("/api/posts/{postid}/comments/{id}",2L,1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$['title']").value("Второе сообщение"))
-                .andExpect(jsonPath("$['tags']",hasSize(1)))
-                .andExpect(jsonPath("$['tags'][0]").value("Байкал"))
-                .andExpect(jsonPath("$['text']").value("Бла бла"))
-                .andExpect(jsonPath("$['image']").value("Peschannaya.png"))
-                .andExpect(jsonPath("$['likesCount']").value(2))
-                .andExpect(jsonPath("$['commentsCount']").value(1));
+                .andExpect(jsonPath("$['id']").value(4L))
+                .andExpect(jsonPath("$['text']").value("2-1"))
+                .andExpect(jsonPath("$['postId']").value(2L));
+
     }
 
     @Test
-    void createPost_acceptsJson_andPersists() throws Exception {
+    void createComment_acceptsJson_andPersists() throws Exception {
         String json = """
-                  {"title":"Седьмое сообщение","text":"Бла","tags":["Daniel","Craig"]}
+                  {"text":"Четвертый комми","text":"Бла","tags":["Daniel","Craig"]}
                 """;
         mockMvc.perform(post("/api/posts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -188,11 +185,5 @@ class PostControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void Post_like() throws Exception {
-        mockMvc.perform(post("/api/posts/{id}/likes",1L))
-                .andExpect(status().isOk())
-                .andExpect(content().string("2"));
-        ;
-    }
+
 }

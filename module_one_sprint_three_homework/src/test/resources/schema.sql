@@ -45,7 +45,7 @@ insert into posts(title, text, image, likesCount) values ('Второе сооб
 insert into posts(title, text, image, likesCount) values ('третье сообщение', 'Бла бла бла', 'Peschannaya.png',3);
 insert into posts(title, text, image, likesCount) values ('Четвертое сообщение', 'Бла бла','Peschannaya.png', 2);
 insert into posts(title, text, image, likesCount) values ('Пятое сообщение', 'Бла бла бла', 'Peschannaya.png',3);
-insert into posts(title, text, image, likesCount) values ('Шестое сообщение', 'Бла бла бла', 'Peschannaya.png',3);
+insert into posts(title, text, image, likesCount) values ('Шестое сообщение', 'Бла бла бла', '',3);
 
 insert into tags(tag) values ('Байкал'),('Аршан'),('горы');
 

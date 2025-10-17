@@ -10,6 +10,7 @@ import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.PostRepository;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -75,11 +76,10 @@ public class PostService {
         try {
             String fileName=postRepository.getFileNameByPostId(id);
             Path filePath = Paths.get(UPLOAD_DIR).resolve(fileName).normalize();
-            System.out.println("путь к файлу "+ filePath);
             byte[] content = Files.readAllBytes(filePath);
             return new ByteArrayResource(content);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+        } catch (Exception e) {
+            return null;
         }
 
     }
@@ -88,17 +88,15 @@ public class PostService {
         try {
             Path uploadDir = Paths.get(UPLOAD_DIR);
             String fileName=file.getOriginalFilename().replace(".","_"+postRepository.getFileSuffix()+".");
-            System.out.println("сохранияем файл "+ fileName);
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
             Path filePath = uploadDir.resolve(fileName);
-
-            System.out.println("полное имя "+ fileName);
             file.transferTo(filePath);
-            return postRepository.setFileNameByPostId(id,fileName);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            postRepository.setFileNameByPostId(id,fileName);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

@@ -21,7 +21,7 @@ public interface PostRepository {
 
     String getFileNameByPostId(Long id);
 
-    boolean setFileNameByPostId(Long id, String fileName);
+    void setFileNameByPostId(Long id, String fileName);
 
     List<String> getTagsByPostId(Long id);
 

@@ -4,16 +4,16 @@ public class Comment {
 
     long id;
     String text;
-    long postid;
+    long postId;
 
     public Comment() {
 
     }
 
-    public Comment(long id, String text, long postid) {
+    public Comment(long id, String text, long postId) {
         this.id = id;
         this.text = text;
-        this.postid = postid;
+        this.postId = postId;
     }
 
     public long getId() {
@@ -32,11 +32,11 @@ public class Comment {
         this.text = text;
     }
 
-    public long getPostid() {
-        return postid;
+    public long getPostId() {
+        return postId;
     }
 
-    public void setPostid(long postid) {
-        this.postid = postid;
+    public void setPostId(long postId) {
+        this.postId = postId;
     }
 }

@@ -1,11 +1,15 @@
 package ru.yandex.practicum.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.CommentDTO;
@@ -14,17 +18,19 @@ import ru.yandex.practicum.DTO.ResponceDTO;
 import ru.yandex.practicum.mapping.PostMapper;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
+import ru.yandex.practicum.validator.PostDtoValidator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 
-@CrossOrigin
+@CrossOrigin(maxAge = 3600)
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
-
+    @Autowired
+    private PostDtoValidator postDtoValidator;
     private final PostService service;
     private final PostMapper postMapper=PostMapper.INSTANCE;
 
@@ -38,8 +44,6 @@ public class PostController {
     public ResponseEntity<?> getAllPosts(@RequestParam("search") String search,
                                          @RequestParam("pageNumber") int pageNumber,
                                          @RequestParam("pageSize") int pageSize) {
-        System.out.println("Вывели список постов "+search+" "+pageNumber+" "+pageSize);
-
         List<Post> posts = service.findAll(search, pageNumber, pageSize);
         List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
         long total_count= Optional.of(posts.getFirst().getTotal_records()).orElse(0L);
@@ -67,6 +71,11 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO) {
+        Errors errors = new BeanPropertyBindingResult(postDTO, "postDTO");
+        postDtoValidator.validate(postDTO, errors) ;
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().body(errors.getAllErrors());
+        }
         System.out.println("Post creation");
         return new ResponseEntity<>(postMapper.toPostDTO(service.save(postDTO)), HttpStatus.CREATED);
     }
@@ -74,7 +83,11 @@ public class PostController {
     //4 update post
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody PostDTO postDTO) {
-        //service.update(id, user);
+        Errors errors = new BeanPropertyBindingResult(postDTO, "postDTO");
+        postDtoValidator.validate(postDTO, errors, "update") ;
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().body(errors.getAllErrors());
+        }
         System.out.println("Post updating");
         return new ResponseEntity<>(postMapper.toPostDTO(service.update(id, postDTO)), HttpStatus.OK);
     }
@@ -89,44 +102,39 @@ public class PostController {
     //6 increment likes counter
     @PostMapping("/{id}/likes")
     public ResponseEntity<Long> like(@PathVariable(name = "id") Long id) {
-        System.out.println("New like");
         Long likecounter = service.like(id);
         return new ResponseEntity<>(likecounter, HttpStatus.OK);
     }
 
     //7 upload post image
     @PutMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Resource> uploadImage(@PathVariable("id") Long id,
-                                                @RequestParam("image") MultipartFile file) throws Exception {
-
-        System.out.println("файл сохраняем");
+    public ResponseEntity<String> uploadImage(@PathVariable("id") Long id,
+                                              @RequestParam("image") MultipartFile file) throws Exception {
         if (file.isEmpty()) {
-            System.out.println("файл пустой");
             return ResponseEntity.badRequest()
-                    .body(null);
+                    .body("Empty file");
+        }
+        if (!service.exists(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("post not found");
         }
         boolean ok = service.uploadImage(id, file);
         if (!ok) {
-            System.out.println("файл не сохранили");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(null);
-
+                    .body("Brooken engine");
         }
-        System.out.println("Да все вроде хорошо");
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
-                .header(HttpHeaders.CACHE_CONTROL, "no-store")
-                .body(service.getImage(id));
+                .body("Image uploaded");
     }
 
     //8 get post image
     @GetMapping(value = "/{id}/image")
     public ResponseEntity<Resource> getImage(@PathVariable("id") Long id) {
-        Resource file = service.getImage(id);
+        System.out.println("Да все вроде хорошо");
+        Resource file=null;
+        file = service.getImage(id);
         if (file == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok()
+                return ResponseEntity.notFound().build();
+        } else return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_PNG)
                 .header(HttpHeaders.CACHE_CONTROL, "no-store")
                 .body(file);

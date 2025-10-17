@@ -20,6 +20,12 @@ public class CommentRepository {
     private final JdbcTemplate jdbcTemplate;
     private final CommentRowMapper commentRowMapper;
 
+    private static final String SelectCommentsSQL = "SELECT id, text, postid FROM comments where postid = ?";
+    private static final String SelectCommentsByIdSQL = "SELECT * FROM comments WHERE id = ?";
+    private static final String CommentInsertingSQL="insert into comments(text, postid) values(?, ?)";
+    private static final String CommentUpdatingSQL="update comments set text = ? where id = ?";
+    private static final String CommentDeletingSQL="delete from comments where id = ?";
+
     public CommentRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         commentRowMapper= new CommentRowMapper();
@@ -27,21 +33,19 @@ public class CommentRepository {
 
 
     public List<Comment> findAll(Long id) {
-        //String [] tags = new String[]{"#раз","#два","#три"};
-        return jdbcTemplate.query("SELECT id, text, postid FROM comments where postid = ?",commentRowMapper,id);
+        return jdbcTemplate.query(SelectCommentsSQL,commentRowMapper,id);
     }
 
     public Comment getById(Long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM comments WHERE id = ?", commentRowMapper,id);
+        return jdbcTemplate.queryForObject(SelectCommentsByIdSQL, commentRowMapper,id);
     }
 
     public Comment save(CommentDTO commentDTO) {
-        String PostInsertingSQL="insert into comments(text, postid) values(?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement ps = con.prepareStatement(PostInsertingSQL, new String[]{"id"});
+                PreparedStatement ps = con.prepareStatement(CommentInsertingSQL, new String[]{"id"});
                 ps.setString(1, commentDTO.text());
                 ps.setLong(2, commentDTO.postId());
                 return ps;
@@ -52,12 +56,12 @@ public class CommentRepository {
     }
 
     public Comment update(Long id, CommentDTO commentDTO) {
-        jdbcTemplate.update("update comments set text = ? where id = ?",
+        jdbcTemplate.update(CommentUpdatingSQL,
                 commentDTO.text(), id);
         return getById(id);
     }
 
     public void deleteById(Long id) {
-        jdbcTemplate.update("delete from comments where id = ?", id);
+        jdbcTemplate.update(CommentDeletingSQL, id);
     }
 }

@@ -14,6 +14,7 @@ import ru.yandex.practicum.model.Post;
 import java.sql.PreparedStatement;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -76,16 +77,16 @@ public class JdbcNativePostRepository implements PostRepository {
             selectSQL = selectSQL+joinFromPartOfSelectSQL;
             whereSQL = wherePrefixSQL+joinWherePartOfSelectSQL+tagString;
             wherePrefixSQL = andPrefixSQL;
-        };
+        }
         if (!searchSubstring.isEmpty()) {
             whereSQL = whereSQL+wherePrefixSQL+searchIlikeSQL+"'%"+searchSubstring+"%'";
-        };
+        }
         selectSQL = selectSQL+whereSQL+pagenabeTaleSQL;
         System.out.println(selectSQL + " " + pageSize +" "+pageNumber);
         //jdbcTemplate.query
         total_records_not_initialized=true;
         total_records=0;
-        return jdbcTemplate.query(selectSQL,postRowMapper, Integer.valueOf(pageSize), Integer.valueOf(pageSize*(pageNumber-1)));
+        return jdbcTemplate.query(selectSQL,postRowMapper, pageSize, pageSize * (pageNumber - 1));
     }
 
     @Override
@@ -134,15 +135,12 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public String getFileNameByPostId(Long id) {
-        //тут просится Optional
-        return jdbcTemplate.queryForObject(SelectByIdSQL, postRowMapper,id).getImage();
+        Post post = jdbcTemplate.queryForObject(SelectByIdSQL, postRowMapper,id);
+        if (post==null) return ""; else return post.getImage();
     }
 
     @Override
-    public boolean setFileNameByPostId(Long id, String fileName) {
-        jdbcTemplate.update(UpdateImageByIdSQL, fileName, id);
-       return true;
-    }
+    public void setFileNameByPostId(Long id, String fileName) { jdbcTemplate.update(UpdateImageByIdSQL, fileName, id); }
 
     @Override
     public List<String> getTagsByPostId(Long id) { return jdbcTemplate.query(SelectTagsByPostIdSQL,tagRowMapper, id); }
@@ -189,7 +187,6 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     public void saveTag (Long postid, String tag) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
         List<Long> tagsids = jdbcTemplate.queryForList(SelectTagIdByTagSQL, Long.class,tag);
         long tagid = tagsids.stream().findFirst()
                 .orElseGet(() -> registerNewTag(tag));
