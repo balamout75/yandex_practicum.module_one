@@ -1,23 +1,10 @@
 package ru.yandex.practicum.service;
 
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.CommentDTO;
-import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.model.Comment;
-import ru.yandex.practicum.model.Post;
-import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.CommentRepository;
-import ru.yandex.practicum.repository.PostRepository;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -41,11 +28,10 @@ public class CommentService {
         return commentRepository.update(id, commentDTO);
     }
 
-    public void deleteById(Long id) {
-        commentRepository.deleteById(id);
-    }
+    public void deleteById(Long id) { commentRepository.deleteById(id); }
 
     public Comment getById(Long id) { return commentRepository.getById(id); }
 
+    public boolean existsById(Long postId, Long commentId) { return commentRepository.existsById(postId, commentId); }
 
 }

@@ -22,9 +22,10 @@ public class CommentRepository {
 
     private static final String SelectCommentsSQL = "SELECT id, text, postid FROM comments where postid = ?";
     private static final String SelectCommentsByIdSQL = "SELECT * FROM comments WHERE id = ?";
-    private static final String CommentInsertingSQL="insert into comments(text, postid) values(?, ?)";
-    private static final String CommentUpdatingSQL="update comments set text = ? where id = ?";
-    private static final String CommentDeletingSQL="delete from comments where id = ?";
+    private static final String CommentInsertingSQL="INSERT INTO comments(text, postid) VALUES(?, ?)";
+    private static final String CommentUpdatingSQL="UPDATE comments SET text = ? WHERE id = ?";
+    private static final String CommentDeletingSQL="DELETE FROM comments WHERE id = ?";
+    private static final String CheckExistingCommentsSQL="SELECT COUNT(*) FROM posts, comments WHERE comments.postid=posts.id AND posts.id=? AND comments.id=?";
 
     public CommentRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -63,5 +64,10 @@ public class CommentRepository {
 
     public void deleteById(Long id) {
         jdbcTemplate.update(CommentDeletingSQL, id);
+    }
+
+    public boolean existsById(Long postId, Long commentId) {
+        Integer Count = jdbcTemplate.queryForObject(CheckExistingCommentsSQL, Integer.class, postId, commentId);
+        return Count != null && Count > 0;
     }
 }
