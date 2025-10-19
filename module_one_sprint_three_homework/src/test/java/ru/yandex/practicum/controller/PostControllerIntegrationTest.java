@@ -57,7 +57,7 @@ class PostControllerIntegrationTest {
                 .andExpect(jsonPath("$['posts'][1].text").value("Бла бла"))
                 .andExpect(jsonPath("$['posts'][1].image").value("Peschannaya.png"))
                 .andExpect(jsonPath("$['posts'][1].likesCount").value(2))
-                .andExpect(jsonPath("$['posts'][1].commentsCount").value(1))
+                .andExpect(jsonPath("$['posts'][1].commentsCount").value(3))
                 .andExpect(jsonPath("$.hasPrev").value(false))
                 .andExpect(jsonPath("$.hasNext").value(true))
                 .andExpect(jsonPath("$.lastPage").value(2));

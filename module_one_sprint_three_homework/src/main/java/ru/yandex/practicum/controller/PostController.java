@@ -44,10 +44,11 @@ public class PostController {
                                          @RequestParam("pageNumber") int pageNumber,
                                          @RequestParam("pageSize") int pageSize) {
         List<Post> posts = service.findAll(search, pageNumber, pageSize);
-        List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
-        long total_count= Optional.ofNullable(posts.getFirst().getTotal_records())
-                                            .orElse(0L);
 
+        List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
+        long total_count= Optional.ofNullable(posts.getFirst())
+                                            .map(Post::getTotal_records)
+                                            .orElse(0L);
         return new ResponseEntity<>(new ResponceDTO(postDTOList,
                                         pageNumber>1,
                                         ((long) pageNumber * pageSize)<total_count,

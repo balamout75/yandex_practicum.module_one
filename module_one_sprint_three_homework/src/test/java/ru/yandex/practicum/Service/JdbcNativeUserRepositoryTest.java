@@ -1,12 +1,18 @@
 package ru.yandex.practicum.Service;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.configuration.DataSourceConfiguration;
+import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.repository.JdbcNativePostRepository;
 import ru.yandex.practicum.repository.PostRepository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,64 +49,98 @@ class JdbcNativeUserRepositoryTest {
                 "INSERT INTO users (id, first_name, last_name, age, active) VALUES (?,?,?,?,?)",
                 3L, "Мария", "Сидорова", 28, true
         );
+    }*/
+
+    @Test
+    void save_shouldAddPostWithTagsToDatabase() {
+        PostDTO post = new PostDTO(8L,"Седьмой пост", "Бла", new String[]{"Байкал", "горы"}, "", 0L, 0L);
+        postRepository.save(post);
+        List<Post> all = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
+        Post saved = all.stream().filter(u -> u.getId()==(7L)).findFirst().orElse(null);
+        assertNotNull(saved);
+        assertEquals(7L, saved.getId());
+        assertEquals("Седьмой пост", saved.getTitle());
+        assertEquals("Бла", saved.getText());
+        assertEquals("", saved.getImage());
+        assertEquals(0, saved.getLikesCount());
+        assertEquals(0, saved.getCommentsCount());
+        assertEquals(7L, saved.getTotal_records());
+        assertEquals(2, saved.getTags().length);
+        assertEquals("Байкал", saved.getTags()[0]);
+        assertEquals("горы", saved.getTags()[1]);
+
+
+        List<String> tags = postRepository.getTagsByPostId(7L);
+        assertEquals(2, tags.size());
+        assertEquals("Байкал", tags.get(0));
+        assertEquals("горы", tags.get(1));
     }
 
     @Test
-    void save_shouldAddUserToDatabase() {
-        Post user = new User(4L, "Петр", "Васильев", 25, true);
-
-        postRepository.save(user);
-
-        List<User> all = postRepository.findAll();
-        User saved = all.stream().filter(u -> u.getId().equals(4L)).findFirst().orElse(null);
-
+    void update_shouldUpdatePostWithTagsInDatabase() {
+        long PostNumber = 6L;
+        List<Post> all = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
+        Post saved = all.stream().filter(u -> u.getId()==(PostNumber)).findFirst().orElse(null);
         assertNotNull(saved);
-        assertEquals("Петр", saved.getFirstName());
-        assertEquals("Васильев", saved.getLastName());
-        assertEquals(25, saved.getAge());
-        assertTrue(saved.isActive());
+        assertEquals(PostNumber, saved.getId());
+        assertEquals("Шестое сообщение", saved.getTitle());
+        assertEquals("Бла бла бла", saved.getText());
+        assertEquals("Неправильный файл", saved.getImage());
+        assertEquals(3, saved.getLikesCount());
+        assertEquals(0, saved.getCommentsCount());
+        assertEquals(2, saved.getTags().length);
+        assertEquals("Байкал", saved.getTags()[0]);
+        assertEquals("горы", saved.getTags()[1]);
+        PostDTO post = new PostDTO(PostNumber,"Шестое сообщение, исправленное", "Бла", new String[]{"аршан","горы", }, "Другой файл", 10L, 10L);
+        postRepository.update(PostNumber,post);
+        all = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
+        saved = all.stream().filter(u -> u.getId()==(PostNumber)).findFirst().orElse(null);
+        assertNotNull(saved);
+        assertEquals(PostNumber, saved.getId());
+        assertEquals("Шестое сообщение, исправленное", saved.getTitle());
+        assertEquals("Бла", saved.getText());
+        assertEquals("Неправильный файл", saved.getImage());
+        assertEquals(3, saved.getLikesCount());
+        assertEquals(0, saved.getCommentsCount());
+        assertEquals(2, saved.getTags().length);
+        assertEquals("Аршан", saved.getTags()[0]);
+        assertEquals("горы", saved.getTags()[1]);
+
     }
 
     @Test
     void findAll_shouldReturnAllUsers() {
-        List<Post> posts = userRepository.findAll();
-
-        assertNotNull(users);
-        assertEquals(3, users.size());
-        User first = users.getFirst();
+        List<Post> all = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
+        assertNotNull(all);
+        assertTrue(all.size()>=6);
+        Post first = all.getFirst();
         assertEquals(1L, first.getId());
-        assertEquals("Иван", first.getFirstName());
+        assertEquals("Чистое синее озеро, белый песок, красочные скалы, хвойный лес — именно таким волшебным сочетанием природных даров отличается бух...",
+                            first.getTitle());
+        assertEquals("Бла", first.getText());
+        assertEquals("Peschannaya.png", first.getImage());
+        assertEquals(1, first.getLikesCount());
+        assertEquals(3, first.getCommentsCount());
+        assertTrue(first.getTotal_records()>=6);
+        assertEquals(3, first.getTags().length);
+        assertEquals("Байкал", first.getTags()[0]);
+        assertEquals("Аршан", first.getTags()[1]);
+        assertEquals("горы", first.getTags()[2]);
     }
 
     @Test
-    void deleteById_shouldRemoveUserFromDatabase() {
-        userRepository.deleteById(1L);
-
-        List<User> users = userRepository.findAll();
-        assertEquals(2, users.size());
-        assertTrue(users.stream().noneMatch(u -> u.getId().equals(1L)));
-    }
-
-    @Test
-    void updateAvatar_and_findAvatarById() {
-        byte[] avatar = new byte[]{1, 2, 3, 4};
-
-        assertTrue(userRepository.updateAvatar(1L, avatar));
-
-        byte[] fromDb = userRepository.findAvatarById(1L);
-        assertArrayEquals(avatar, fromDb);
-    }
-
-    @Test
-    void findAvatarById_returnsNull_whenNotSet() {
-        assertNull(userRepository.findAvatarById(2L));
+    void deleteById_shouldRemovePostFromDatabaseWithComments() {
+        List<Post> users = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
+        int initialSize = users.size();
+        postRepository.deleteById(1L);
+        users = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
+        assertEquals(initialSize-1, users.size());
+        assertTrue(users.stream().noneMatch(u -> u.getId()==1L));
     }
 
     @Test
     void existsById_true_and_false() {
-        assertTrue(userRepository.existsById(1L));
-        assertFalse(userRepository.existsById(999L));
+        assertTrue(postRepository.existsById(2L));
+        assertFalse(postRepository.existsById(999L));
     }
-
-     */
-}
+ }

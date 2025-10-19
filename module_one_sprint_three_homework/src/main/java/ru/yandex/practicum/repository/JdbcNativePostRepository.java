@@ -37,7 +37,8 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String SelectTagIdByTagSQL ="SELECT id FROM tags WHERE tag ILIKE ?";
     private static final String IncrementlikesByIdSQL="UPDATE posts SET likesCount = likesCount+1 WHERE id=?";
     private static final String SelectlikesByIdSQL="SELECT likesCount FROM posts WHERE id=?";
-    private static final String SelectPostsCommentsCountByIdSQL="SELECT COUNT(*) FROM postsandtags WHERE post=?";
+    //private static final String SelectPostsCommentsCountByIdSQL="SELECT COUNT(*) FROM postsandtags WHERE post=?";
+    private static final String SelectCommentsCountByPostIdSQL="SELECT COUNT(*) FROM comments WHERE postid=?";
     private static final String SelectFileSuffixFromSeqSQL ="SELECT NEXTVAL('image_sequence')";
 
 
@@ -143,7 +144,7 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public Long getPostsCommentsCountById(Long id) {
-        return jdbcTemplate.queryForList(SelectPostsCommentsCountByIdSQL, Long.class, id).stream()
+        return jdbcTemplate.queryForList(SelectCommentsCountByPostIdSQL, Long.class, id).stream()
                 .findFirst()
                 .orElse(0L);
     }
