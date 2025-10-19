@@ -50,7 +50,7 @@ insert into posts(title, text, image, likesCount) values ('Шестое сооб
 insert into tags(tag) values ('Байкал'),('Аршан'),('горы');
 
 insert into postsandtags(post,tag) values (1,1),(1,2),(1,3);
-insert into postsandtags(post,tag) values (2,1),(3,2),(3,3);
+insert into postsandtags(post,tag) values (2,1),(3,2),(3,3),(4,3);
 
 
 insert into comments(text, postid) values ('1-1', 1),

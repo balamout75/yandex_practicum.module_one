@@ -1,12 +1,10 @@
 package ru.yandex.practicum.configuration;
 
-import jakarta.validation.Validator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import ru.yandex.practicum.validator.CommentDtoValidator;
 import ru.yandex.practicum.validator.PostDtoValidator;
@@ -32,4 +30,3 @@ public class WebConfiguration{
         return new CommentDtoValidator();
     }
 };
-

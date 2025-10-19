@@ -6,19 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.PostDTO;
 import ru.yandex.practicum.model.Post;
-import ru.yandex.practicum.model.User;
 import ru.yandex.practicum.repository.PostRepository;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,13 +29,10 @@ public class PostService {
     }
 
     public List<Post> findAll(String search, int pageNumber, int pageSize) {
-        System.out.println("строка поиска '"+search+"'");
         String taggedsearch=search.replace("#"," #"); //.trim();
-        //System.out.println("строка поиска '"+taggedsearch+"'");
-        String [] words=taggedsearch.split("\\s+");
-        //String [] words=search.split(" ");
 
-        System.out.println("слов в строке"+(words.length));
+        String [] words=taggedsearch.split("\\s+");
+
         Map<Boolean, List<String>> partitioned = Stream.of(words)
                     .filter(n -> !n.isBlank())
                     .collect(Collectors.partitioningBy(n -> n.charAt(0) == '#'));
@@ -49,10 +41,6 @@ public class PostService {
                     .map(s -> s.substring(1))
                     .filter(n -> !n.isBlank())
                     .toList();
-        System.out.println("Компоненты поиска (" + searchwords.size() + ")");
-        searchwords.forEach(System.out::println);
-        System.out.println("тэги (" + tags.size() + ")");
-        tags.forEach(System.out::println);
         return postRepository.findAll(searchwords, tags, pageNumber, pageSize);
     }
 
@@ -64,9 +52,7 @@ public class PostService {
         return postRepository.update(id, postDTO);
     }
 
-    public boolean deleteById(Long id) {
-        return postRepository.deleteById(id);
-    }
+    public void deleteById(Long id) { postRepository.deleteById(id); }
 
     public Post getById(Long id) {
         return postRepository.getById(id);
@@ -101,7 +87,7 @@ public class PostService {
     }
 
     public Long like(Long id) { return postRepository.like(id); }
-    public boolean exists(Long id) { return postRepository.existsById(id);
-    }
+
+    public boolean exists(Long id) { return postRepository.existsById(id); }
 
 }

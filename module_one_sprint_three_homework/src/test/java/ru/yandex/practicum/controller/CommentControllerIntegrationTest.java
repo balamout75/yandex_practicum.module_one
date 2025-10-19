@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -21,7 +18,6 @@ import ru.yandex.practicum.configuration.WebConfiguration;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -37,8 +33,6 @@ class CommentControllerIntegrationTest {
 
     @Autowired
     private WebApplicationContext wac;
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     private MockMvc mockMvc;
 
@@ -133,7 +127,7 @@ class CommentControllerIntegrationTest {
     }
 
     @Test
-    void deleteСomment_success() throws Exception {
+    void deleteComment_success() throws Exception {
         mockMvc.perform(get("/api/posts/{postid}/comments",3L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -182,7 +176,7 @@ class CommentControllerIntegrationTest {
     }
 
     @Test
-    void deleteAlienСomment_isNotFound() throws Exception {
+    void deleteAlienComment_isNotFound() throws Exception {
         Long AlienPostId=2L;
         mockMvc.perform(delete("/api/posts/{postid}/comments/{id}",AlienPostId,7L))
                 .andExpect(status().isNotFound());
@@ -199,7 +193,7 @@ class CommentControllerIntegrationTest {
                                 {"text":"","postId":0}
                             """})
     void createIncorrectCommentById_isBadRequest(String json) throws Exception {
-               mockMvc.perform(post(json,2L)
+               mockMvc.perform(post("/api/posts/{postid}/comments",2L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());

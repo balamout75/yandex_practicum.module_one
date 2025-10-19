@@ -39,20 +39,15 @@ public class PostController {
     }
 
     //1 posts list returning
-
     @GetMapping()
     public ResponseEntity<?> getAllPosts(@RequestParam("search") String search,
                                          @RequestParam("pageNumber") int pageNumber,
                                          @RequestParam("pageSize") int pageSize) {
         List<Post> posts = service.findAll(search, pageNumber, pageSize);
         List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
-        long total_count= Optional.of(posts.getFirst().getTotal_records()).orElse(0L);
+        long total_count= Optional.ofNullable(posts.getFirst().getTotal_records())
+                                            .orElse(0L);
 
-        System.out.println("Записей "+total_count+" текущая страница "+pageNumber+" записей на странице "+pageSize);
-
-        boolean hasPrev=pageNumber>1; System.out.println("hasPrev "+hasPrev);
-        boolean hasNext=((long) pageNumber *pageSize)<total_count; System.out.println("hasNext "+hasNext);
-        System.out.println("последняя страница "+(int) Math.ceil((double) total_count / pageSize));
         return new ResponseEntity<>(new ResponceDTO(postDTOList,
                                         pageNumber>1,
                                         ((long) pageNumber * pageSize)<total_count,
@@ -63,12 +58,10 @@ public class PostController {
     //2 post getting
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable(name = "id") Long id) {
-        System.out.println("Вернули пост");
         return new ResponseEntity<>(postMapper.toPostDTO(service.getById(id)), HttpStatus.OK);
     }
 
     //3 post creation
-
     @PostMapping
     public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO) {
         Errors errors = new BeanPropertyBindingResult(postDTO, "postDTO");
@@ -76,34 +69,43 @@ public class PostController {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors.getAllErrors());
         }
-        System.out.println("Post creation");
-        return new ResponseEntity<>(postMapper.toPostDTO(service.save(postDTO)), HttpStatus.CREATED);
+        return new ResponseEntity<>(postMapper.toPostDTO(service.save(postDTO)),
+                                    HttpStatus.CREATED);
     }
 
     //4 update post
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, @RequestBody PostDTO postDTO) {
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
+                                    @RequestBody PostDTO postDTO) {
         Errors errors = new BeanPropertyBindingResult(postDTO, "postDTO");
         postDtoValidator.validate(postDTO, errors, "update") ;
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors.getAllErrors());
         }
-        System.out.println("Post updating");
-        return new ResponseEntity<>(postMapper.toPostDTO(service.update(id, postDTO)), HttpStatus.OK);
+        if (id!=postDTO.id()) {
+            return ResponseEntity.badRequest().body("Incorrect request");
+        }
+        if (!service.exists(id))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't update comment");
+        else
+            return new ResponseEntity<>(postMapper.toPostDTO(service.update(id, postDTO)),HttpStatus.ACCEPTED);
     }
 
     //5 update post
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable(name = "id") Long id) {
-        if (service.deleteById(id)) return ResponseEntity.status(HttpStatus.OK).body("Record deleted");
-        else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Can't delete record");
+        if (!service.exists(id))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't update comment");
+        else {
+            service.deleteById(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Record deleted");
+        }
     }
 
     //6 increment likes counter
     @PostMapping("/{id}/likes")
     public ResponseEntity<Long> like(@PathVariable(name = "id") Long id) {
-        Long likecounter = service.like(id);
-        return new ResponseEntity<>(likecounter, HttpStatus.OK);
+        return new ResponseEntity<>(service.like(id), HttpStatus.OK);
     }
 
     //7 upload post image
@@ -111,19 +113,17 @@ public class PostController {
     public ResponseEntity<String> uploadImage(@PathVariable("id") Long id,
                                               @RequestParam("image") MultipartFile file) throws Exception {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body("Empty file");
+            return ResponseEntity.badRequest().body("Empty file");
         }
         if (!service.exists(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("post not found");
         }
         boolean ok = service.uploadImage(id, file);
-        if (!ok) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Brooken engine");
-        }
-        return ResponseEntity.ok()
-                .body("Image uploaded");
+        if (service.uploadImage(id, file))
+            return ResponseEntity.ok().body("Image uploaded");
+        else
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something going wrong");
+
     }
 
     //8 get post image
@@ -135,7 +135,7 @@ public class PostController {
         if (file == null) {
                 return ResponseEntity.notFound().build();
         } else return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_PNG)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CACHE_CONTROL, "no-store")
                 .body(file);
     }

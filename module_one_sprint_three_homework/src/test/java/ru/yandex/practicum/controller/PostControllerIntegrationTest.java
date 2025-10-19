@@ -17,10 +17,7 @@ import ru.yandex.practicum.configuration.DataSourceConfiguration;
 import ru.yandex.practicum.configuration.WebConfiguration;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,6 +45,7 @@ class PostControllerIntegrationTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
+    //CRUD
     @Test
     void getPosts_returnsJsonArray() throws Exception {
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=5"))
@@ -99,45 +97,48 @@ class PostControllerIntegrationTest {
     }
 
     @Test
-    void createPost_emptyText() throws Exception {
+    void updatePost_acceptsJson_andPersists() throws Exception {
         String json = """
-                  {"title":"Восьмое сообщение","text":"","tags":["Daniel","Craig"]}
+                  {"title":"Седьмое сообщение","text":"Бла","tags":["Daniel","Craig"]}
                 """;
         mockMvc.perform(post("/api/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isBadRequest());
-    }
+                .andExpect(status().isAccepted())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(7))
+                .andExpect(jsonPath("$['tags']",hasSize(2)))
+                .andExpect(jsonPath("$['tags'][1]").value("Craig"));
 
-    @Test
-    void createPost_emptyTitle() throws Exception {
-        String json = """
-                  {"title":"","text":"Нечто","tags":["Daniel","Craig"]}
-                """;
-        mockMvc.perform(post("/api/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createPost_emptyTag() throws Exception {
-        String json = """
-                  {"title":"Нечто","text":"Нечто","tags":[]}
-                """;
-        mockMvc.perform(post("/api/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void deleteUser_success() throws Exception {
-        mockMvc.perform(delete("/api/posts/7"))
-                .andExpect(status().isOk());
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$['posts']",hasSize(6)));
+                .andExpect(jsonPath("$['posts']",hasSize(7)));
+    }
+
+    @Test
+    void deletePost_success() throws Exception {
+        mockMvc.perform(get("/api/posts?search=горы&pageNumber=1&pageSize=5"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$",hasSize(3)))
+                .andExpect(jsonPath("$['title']").value("третье сообщение"))
+                .andExpect(jsonPath("$['tags']",hasSize(2)))
+                .andExpect(jsonPath("$['tags'][1]").value("горы"))
+                .andExpect(jsonPath("$['text']").value("Бла бла бла"))
+                .andExpect(jsonPath("$['image']").value("Peschannaya.png"))
+                .andExpect(jsonPath("$['likesCount']").value(3));
+        mockMvc.perform(delete("/api/posts/5"))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/posts?search=#горы&pageNumber=1&pageSize=5"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$",hasSize(2)))
+                .andExpect(jsonPath("$['title']").value("Четвертое сообщение"))
+                .andExpect(jsonPath("$['tags']",hasSize(2)))
+                .andExpect(jsonPath("$['tags'][0]").value("горы"))
+                .andExpect(jsonPath("$['text']").value("Бла бла"))
+                .andExpect(jsonPath("$['image']").value("Peschannaya.png"))
+                .andExpect(jsonPath("$['likesCount']").value(2));
     }
 
     @Test
@@ -194,5 +195,49 @@ class PostControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("2"));
         ;
+    }
+
+    @Test
+    void updateAlienPostById_isBadRequest() throws Exception {
+        String json = """
+                  {"id":4,"text":"Четвертый комментарий для второго сообщения","postId":2}
+                """;
+        mockMvc.perform(put("/api/posts/{postid}/comments/{id}",1L,6L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createPost_emptyText() throws Exception {
+        String json = """
+                  {"title":"Восьмое сообщение","text":"","tags":["Daniel","Craig"]}
+                """;
+        mockMvc.perform(post("/api/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createPost_emptyTitle() throws Exception {
+        String json = """
+                  {"title":"","text":"Нечто","tags":["Daniel","Craig"]}
+                """;
+        mockMvc.perform(post("/api/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createPost_emptyTag() throws Exception {
+        String json = """
+                  {"title":"Нечто","text":"Нечто","tags":[]}
+                """;
+        mockMvc.perform(post("/api/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
     }
 }

@@ -51,13 +51,10 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String searchIlikeSQL = "posts.title ILIKE ";
     private static final String pagenabeTaleSQL = " LIMIT ? OFFSET ?";
 
-    private boolean total_records_not_initialized;
-    private long total_records;
-
     public JdbcNativePostRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        postRowMapper=new PostRowMapper(this);
-        tagRowMapper=new TagRowMapper();
+        this.postRowMapper=new PostRowMapper(this);
+        this.tagRowMapper=new TagRowMapper();
     }
 
     @Override
@@ -83,9 +80,6 @@ public class JdbcNativePostRepository implements PostRepository {
         }
         selectSQL = selectSQL+whereSQL+pagenabeTaleSQL;
         System.out.println(selectSQL + " " + pageSize +" "+pageNumber);
-        //jdbcTemplate.query
-        total_records_not_initialized=true;
-        total_records=0;
         return jdbcTemplate.query(selectSQL,postRowMapper, pageSize, pageSize * (pageNumber - 1));
     }
 
@@ -117,20 +111,14 @@ public class JdbcNativePostRepository implements PostRepository {
 
     @Override
     public Post update(Long id, PostDTO postDTO) {
-        jdbcTemplate.update(UpdateByIdSQL,
-                postDTO.title(), postDTO.text(), id);
+        jdbcTemplate.update(UpdateByIdSQL, postDTO.title(), postDTO.text(), id);
         this.saveTags(id, postDTO.tags());
         return getById(id);
     }
 
     @Override
-    public boolean deleteById(Long id) {
-        try {
-            jdbcTemplate.update(DeleteByIdSQL, id);
-            return true;
-        } catch (DataAccessException e) {
-            return false;
-        }
+    public void deleteById(Long id) {
+        jdbcTemplate.update(DeleteByIdSQL, id);
     }
 
     @Override
@@ -168,9 +156,7 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     public void saveTags (Long id, String[] tags) {
-        //удаляем старые тэги
         jdbcTemplate.update(DeleteTagsByPostIdSQL, id);
-        //проверка на повторение тэгов в массиве и их сохранение
         Set<Character> distinct = new HashSet<>();
         Stream.of(tags).filter(m -> distinct.add(m.charAt(0)))
                 .forEach(s -> saveTag(id,s));
@@ -192,5 +178,4 @@ public class JdbcNativePostRepository implements PostRepository {
                 .orElseGet(() -> registerNewTag(tag));
         jdbcTemplate.update(InsertPostTagSQL, postid, tagid);
     }
-
 }
