@@ -4,7 +4,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.DTO.PostDTO;
+import ru.yandex.practicum.DTO.PostDto;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.repository.PostRepository;
 
@@ -35,6 +35,7 @@ public class PostService {
 
         Map<Boolean, List<String>> partitioned = Stream.of(words)
                     .filter(n -> !n.isBlank())
+                    .map(String::toLowerCase)
                     .collect(Collectors.partitioningBy(n -> n.charAt(0) == '#'));
         List<String> searchwords = partitioned.get(false);
         List<String> tags = partitioned.get(true).stream()
@@ -44,12 +45,12 @@ public class PostService {
         return postRepository.findAll(searchwords, tags, pageNumber, pageSize);
     }
 
-    public Post save(PostDTO postDTO) {
-        return postRepository.save(postDTO);
+    public Post save(PostDto postDto) {
+        return postRepository.save(postDto);
     }
 
-    public Post update(Long id, PostDTO postDTO) {
-        return postRepository.update(id, postDTO);
+    public Post update(Long id, PostDto postDto) {
+        return postRepository.update(id, postDto);
     }
 
     public void deleteById(Long id) { postRepository.deleteById(id); }

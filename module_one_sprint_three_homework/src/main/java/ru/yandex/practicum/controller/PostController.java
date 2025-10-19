@@ -12,9 +12,9 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.DTO.CommentDTO;
-import ru.yandex.practicum.DTO.PostDTO;
-import ru.yandex.practicum.DTO.ResponceDTO;
+import ru.yandex.practicum.DTO.CommentDto;
+import ru.yandex.practicum.DTO.PostDto;
+import ru.yandex.practicum.DTO.ResponceDto;
 import ru.yandex.practicum.mapping.PostMapper;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
@@ -45,13 +45,13 @@ public class PostController {
                                          @RequestParam("pageSize") int pageSize) {
         List<Post> posts = service.findAll(search, pageNumber, pageSize);
 
-        List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
+        List<PostDto> postDtoList = postMapper.toPostDtoList(posts);
         long total_count=posts.stream()
                 .findFirst()
                 .map(Post::getTotal_records)
                 .orElse(0L);
         System.out.println("PageNumber "+pageNumber + " PageSize "+pageSize +" total_count "+total_count +" hasnext ((long) pageNumber * pageSize) < total_count"+(((long) pageNumber * pageSize)<total_count));
-        return new ResponseEntity<>(new ResponceDTO(postDTOList,
+        return new ResponseEntity<>(new ResponceDto(postDtoList,
                                         pageNumber>1,
                                         ((long) pageNumber * pageSize)<total_count,
                                         (int) Math.ceil((double) total_count / pageSize)),
@@ -61,37 +61,37 @@ public class PostController {
     //2 post getting
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable(name = "id") Long id) {
-        return new ResponseEntity<>(postMapper.toPostDTO(service.getById(id)), HttpStatus.OK);
+        return new ResponseEntity<>(postMapper.toPostDto(service.getById(id)), HttpStatus.OK);
     }
 
     //3 post creation
     @PostMapping
-    public ResponseEntity<?> savePost(@RequestBody PostDTO postDTO) {
-        Errors errors = new BeanPropertyBindingResult(postDTO, "postDTO");
-        postDtoValidator.validate(postDTO, errors) ;
+    public ResponseEntity<?> savePost(@RequestBody PostDto postDto) {
+        Errors errors = new BeanPropertyBindingResult(postDto, "postDto");
+        postDtoValidator.validate(postDto, errors) ;
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors.getAllErrors());
         }
-        return new ResponseEntity<>(postMapper.toPostDTO(service.save(postDTO)),
+        return new ResponseEntity<>(postMapper.toPostDto(service.save(postDto)),
                                     HttpStatus.CREATED);
     }
 
     //4 update post
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
-                                    @RequestBody PostDTO postDTO) {
-        Errors errors = new BeanPropertyBindingResult(postDTO, "postDTO");
-        postDtoValidator.validate(postDTO, errors, "update") ;
+                                    @RequestBody PostDto postDto) {
+        Errors errors = new BeanPropertyBindingResult(postDto, "postDto");
+        postDtoValidator.validate(postDto, errors, "update") ;
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors.getAllErrors());
         }
-        if (id!=postDTO.id()) {
+        if (id!=postDto.id()) {
             return ResponseEntity.badRequest().body("Incorrect request");
         }
         if (!service.exists(id))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't update comment");
         else
-            return new ResponseEntity<>(postMapper.toPostDTO(service.update(id, postDTO)),HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(postMapper.toPostDto(service.update(id, postDto)),HttpStatus.ACCEPTED);
     }
 
     //5 update post
@@ -149,7 +149,7 @@ public class PostController {
 
     @GetMapping(value = "/undefined/comments")
     public ResponseEntity<?> getStub() {
-        ArrayList<CommentDTO> stub = new ArrayList<CommentDTO>();
+        ArrayList<CommentDto> stub = new ArrayList<CommentDto>();
         return new ResponseEntity<>(stub, HttpStatus.OK);
     }
 

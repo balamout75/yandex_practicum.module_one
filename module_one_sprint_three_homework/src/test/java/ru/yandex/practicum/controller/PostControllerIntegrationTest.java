@@ -9,13 +9,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import ru.yandex.practicum.DTO.PostDTO;
+import ru.yandex.practicum.DTO.PostDto;
 import ru.yandex.practicum.configuration.DataSourceConfiguration;
 import ru.yandex.practicum.configuration.WebConfiguration;
 import ru.yandex.practicum.model.Post;
@@ -40,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class PostControllerIntegrationTest {
 
     @Autowired
@@ -48,7 +50,6 @@ class PostControllerIntegrationTest {
     private JdbcTemplate jdbcTemplate;
 
     private MockMvc mockMvc;
-    private int total_records=6;
 
     @BeforeEach
     void setup() {
@@ -58,12 +59,19 @@ class PostControllerIntegrationTest {
     //CRUD
     @Test
     void getPosts_returnsJsonArray() throws Exception {
-        int pageSize=total_records-1;
+        long total_records = jdbcTemplate.queryForList("Select count(*) from posts", Long.class).stream()
+                .findFirst()
+                .orElse(0L);
+        Long last_records = jdbcTemplate.queryForList("Select max(id) from posts", Long.class).stream()
+                .findFirst()
+                .orElse(0L);
+        long pageSize=total_records-1;
+        //pageSize=10;
 
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize="+pageSize))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$['posts']",hasSize(pageSize)))
+                .andExpect(jsonPath("$['posts']",hasSize((int) pageSize)))
                 .andExpect(jsonPath("$['posts'][0].title").value("Чистое синее озеро, белый песок, красочные скалы, хвойный лес — именно таким волшебным сочетанием природных даров отличается бух..."))
                 .andExpect(jsonPath("$['posts'][0].commentsCount").value(3))
                 .andExpect(jsonPath("$['posts'][1].text").value("Бла бла"))
@@ -76,7 +84,7 @@ class PostControllerIntegrationTest {
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$['posts']",hasSize(total_records)))
+                .andExpect(jsonPath("$['posts']",hasSize((int) total_records)))
                 .andExpect(jsonPath("$['posts'][0].title").value("Чистое синее озеро, белый песок, красочные скалы, хвойный лес — именно таким волшебным сочетанием природных даров отличается бух..."))
                 .andExpect(jsonPath("$['posts'][0].commentsCount").value(3))
                 .andExpect(jsonPath("$['posts'][1].text").value("Бла бла"))
@@ -94,7 +102,7 @@ class PostControllerIntegrationTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$['title']").value("Второе сообщение"))
                 .andExpect(jsonPath("$['tags']",hasSize(1)))
-                .andExpect(jsonPath("$['tags'][0]").value("Байкал"))
+                .andExpect(jsonPath("$['tags'][0]").value("байкал"))
                 .andExpect(jsonPath("$['text']").value("Бла бла"))
                 .andExpect(jsonPath("$['likesCount']").value(2))
                 .andExpect(jsonPath("$['commentsCount']").value(3));
@@ -105,22 +113,26 @@ class PostControllerIntegrationTest {
         String json = """
                   {"title":"Седьмое сообщение","text":"О чем то","tags":["Daniel","Craig"]}
                 """;
+        long total_records = jdbcTemplate.queryForList("Select count(*) from posts", Long.class).stream()
+                .findFirst()
+                .orElse(0L);
+        long last_record = jdbcTemplate.queryForList("Select max(id) from posts", Long.class).stream()
+                .findFirst()
+                .orElse(0L);
         mockMvc.perform(post("/api/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(total_records+1))
+                .andExpect(jsonPath("$.id").value(last_record+1))
                 .andExpect(jsonPath("$['title']").value("Седьмое сообщение"))
                 .andExpect(jsonPath("$['text']").value("О чем то"))
                 .andExpect(jsonPath("$['tags']",hasSize(2)))
                 .andExpect(jsonPath("$['tags'][0]").value("Daniel"))
                 .andExpect(jsonPath("$['tags'][1]").value("Craig"));
-        total_records++;
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$['posts']",hasSize(total_records)));
-        total_records++;
+                .andExpect(jsonPath("$['posts']",hasSize((int) (total_records+1))));
     }
 
     @Test
@@ -132,7 +144,7 @@ class PostControllerIntegrationTest {
                 .andExpect(jsonPath("$['title']").value("Шестое сообщение"))
                 .andExpect(jsonPath("$['text']").value("Бла бла бла"))
                 .andExpect(jsonPath("$['tags']",hasSize(2)))
-                .andExpect(jsonPath("$['tags'][0]").value("Байкал"))
+                .andExpect(jsonPath("$['tags'][0]").value("байкал"))
                 .andExpect(jsonPath("$['tags'][1]").value("горы"))
                 .andExpect(jsonPath("$['likesCount']").value(3))
                 .andExpect(jsonPath("$['commentsCount']").value(0));
@@ -169,14 +181,17 @@ class PostControllerIntegrationTest {
     @Test
     void deletePost_success() throws Exception {
         long postIdAndNum=3L;
+        long total_records = jdbcTemplate.queryForList("Select count(*) from posts", Long.class).stream()
+                .findFirst()
+                .orElse(0L);
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$['posts']",hasSize(total_records)))
+                .andExpect(jsonPath("$['posts']",hasSize((int) (total_records))))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['title']").value("третье сообщение"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['text']").value("Бла бла бла"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['tags']",hasSize(2)))
-                .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['tags'][0]").value("Аршан"))
+                .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['tags'][0]").value("аршан"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['tags'][1]").value("горы"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['likesCount']").value(10))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['commentsCount']").value(3));
@@ -185,14 +200,13 @@ class PostControllerIntegrationTest {
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$['posts']",hasSize(total_records-1)))
+                .andExpect(jsonPath("$['posts']",hasSize((int) (total_records-1))))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['title']").value("Четвертое сообщение"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['text']").value("Бла бла"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['tags']",hasSize(1)))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['tags'][0]").value("горы"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['likesCount']").value(2))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['commentsCount']").value(0));
-        total_records=total_records-1;
     }
 
     @Test

@@ -1,15 +1,15 @@
 package ru.yandex.practicum.repository;
 
-import ru.yandex.practicum.DTO.PostDTO;
+import ru.yandex.practicum.DTO.PostDto;
 import ru.yandex.practicum.model.Post;
 
 import java.util.List;
 
 public interface PostRepository {
 
-    Post save(PostDTO user);
+    Post save(PostDto user);
 
-    Post update(Long id, PostDTO postDTO);
+    Post update(Long id, PostDto postDto);
 
     void deleteById(Long id);
 

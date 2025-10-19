@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.DTO.PostDTO;
+import ru.yandex.practicum.DTO.PostDto;
 import ru.yandex.practicum.mapping.PostRowMapper;
 import ru.yandex.practicum.mapping.TagRowMapper;
 import ru.yandex.practicum.model.Post;
@@ -24,7 +24,6 @@ public class JdbcNativePostRepository implements PostRepository {
     private final JdbcTemplate jdbcTemplate;
     private final PostRowMapper postRowMapper;
     private final TagRowMapper tagRowMapper;
-    private static final String SelectSQL = "SELECT id, title, text, image, likesCount, COUNT(*) OVER() AS total_records FROM posts";
     private static final String InsertSQL="insert into posts(title, text) values(?, ?)";
     private static final String UpdateByIdSQL = "update posts set title = ?, text = ?  where id = ?";
     private static final String UpdateImageByIdSQL = "update posts set image = ? where id = ?";
@@ -37,11 +36,8 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String SelectTagIdByTagSQL ="SELECT id FROM tags WHERE tag ILIKE ?";
     private static final String IncrementlikesByIdSQL="UPDATE posts SET likesCount = likesCount+1 WHERE id=?";
     private static final String SelectlikesByIdSQL="SELECT likesCount FROM posts WHERE id=?";
-    //private static final String SelectPostsCommentsCountByIdSQL="SELECT COUNT(*) FROM postsandtags WHERE post=?";
     private static final String SelectCommentsCountByPostIdSQL="SELECT COUNT(*) FROM comments WHERE postid=?";
     private static final String SelectFileSuffixFromSeqSQL ="SELECT NEXTVAL('image_sequence')";
-
-
     private static final String titleForming = "CASE WHEN LENGTH(posts.title)>128 THEN LEFT(posts.title,128)||'...' ELSE posts.title END AS title";
     private static final String headOfSelectSQL = "Select posts.id, "+titleForming+", posts.text, posts.image, posts.likesCount, COUNT(*) OVER() AS total_records from posts";
     private static final String joinFromPartOfSelectSQL = ",postsandtags,tags";
@@ -50,7 +46,7 @@ public class JdbcNativePostRepository implements PostRepository {
     private static final String andPrefixSQL = " AND ";
     private static final String tagIlikeSQL = "tags.tag ILIKE ";
     private static final String searchIlikeSQL = "posts.title ILIKE ";
-    private static final String pagenabeTaleSQL = " LIMIT ? OFFSET ?";
+    private static final String pagenabeTaleSQL = " ORDER BY id LIMIT ? OFFSET ?";
 
     public JdbcNativePostRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -97,23 +93,23 @@ public class JdbcNativePostRepository implements PostRepository {
     }
 
     @Override
-    public Post save(PostDTO postDTO) {
+    public Post save(PostDto postDto) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(InsertSQL, new String[]{"id"});
-            ps.setString(1, postDTO.title());
-            ps.setString(2, postDTO.text());
+            ps.setString(1, postDto.title());
+            ps.setString(2, postDto.text());
             return ps;
         }, keyHolder);
         long id = keyHolder.getKey().longValue();
-        this.saveTags(id, postDTO.tags());
+        this.saveTags(id, postDto.tags());
         return getById(id);
     }
 
     @Override
-    public Post update(Long id, PostDTO postDTO) {
-        jdbcTemplate.update(UpdateByIdSQL, postDTO.title(), postDTO.text(), id);
-        this.saveTags(id, postDTO.tags());
+    public Post update(Long id, PostDto postDto) {
+        jdbcTemplate.update(UpdateByIdSQL, postDto.title(), postDto.text(), id);
+        this.saveTags(id, postDto.tags());
         return getById(id);
     }
 

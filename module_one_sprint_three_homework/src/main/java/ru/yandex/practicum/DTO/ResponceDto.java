@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public record ResponceDTO (
-    @JsonProperty("posts") List<PostDTO> posts,
+public record ResponceDto (
+    @JsonProperty("posts") List<PostDto> posts,
     @JsonProperty("hasPrev") boolean hasPrev,
     @JsonProperty("hasNext") boolean hasNext,
     @JsonProperty("lastPage") int lastPage
@@ -14,7 +14,7 @@ public record ResponceDTO (
 
     @JsonCreator
 
-    public ResponceDTO(List<PostDTO> posts, boolean hasPrev, boolean hasNext, int lastPage) {
+    public ResponceDto(List<PostDto> posts, boolean hasPrev, boolean hasNext, int lastPage) {
         this.posts = posts;
         this.hasPrev = hasPrev;
         this.hasNext = hasNext;

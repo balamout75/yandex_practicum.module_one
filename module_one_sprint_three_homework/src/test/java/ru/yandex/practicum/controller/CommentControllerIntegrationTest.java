@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -29,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class CommentControllerIntegrationTest {
 
     @Autowired
@@ -59,7 +61,7 @@ class CommentControllerIntegrationTest {
     }
 
     @Test
-    void getCommentById_returnsJsonArray() throws Exception {
+    void getCommentById_returnsJson() throws Exception {
         mockMvc.perform(get("/api/posts/{postid}/comments/{id}",2L,4L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -70,7 +72,7 @@ class CommentControllerIntegrationTest {
     }
 
     @Test
-    void createComment_returnsJsonArray_andPersists() throws Exception {
+    void createComment_returnsJson_andPersists() throws Exception {
         String json = """
                   {"text":"Четвертый комментарий для второго сообщения","postId":2}
                 """;
@@ -177,8 +179,8 @@ class CommentControllerIntegrationTest {
 
     @Test
     void deleteAlienComment_isNotFound() throws Exception {
-        Long AlienPostId=2L;
-        mockMvc.perform(delete("/api/posts/{postid}/comments/{id}",AlienPostId,7L))
+        Long alienPostId=2L;
+        mockMvc.perform(delete("/api/posts/{postid}/comments/{id}",alienPostId,7L))
                 .andExpect(status().isNotFound());
     }
     //Validator
@@ -198,13 +200,25 @@ class CommentControllerIntegrationTest {
                         .content(json))
                 .andExpect(status().isBadRequest());
     }
+    @ParameterizedTest
+    @ValueSource(strings = {"""
+                                {"id":6,"text":"Четвертый комментарий для второго сообщения","postId":2}
+                            """,
+                            """
+                                {"id":4,"text":"","postId":2}
+                            """,
+                            """
+                                {"id":4,"text":"Четвертый комментарий для второго сообщения","postId":}
+                            """,
+                            """
+                                {"id":,"text":"Четвертый комментарий для второго сообщения","postId":2}
+                            """,
+                            """
+                                {"text":"Четвертый комментарий для второго сообщения","postId":2}
+                            """})
+    void updateIncorrectCommentById_isBadRequest(String json) throws Exception {
 
-    @Test
-    void updateIncorrectCommentById_isBadRequest() throws Exception {
-        String json = """
-                  {"id":4,"text":"Четвертый комментарий для второго сообщения","postId":2}
-                """;
-        mockMvc.perform(put("/api/posts/{postid}/comments/{id}",2L,6L)
+        mockMvc.perform(put("/api/posts/{postid}/comments/{id}",2L,4L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());

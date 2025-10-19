@@ -2,9 +2,8 @@ package ru.yandex.practicum.DTO;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotEmpty;
 
-public record PostDTO(
+public record PostDto(
         @JsonProperty("id") long id,
         @JsonProperty("title") String title,
         @JsonProperty("text") String text,
@@ -16,7 +15,7 @@ public record PostDTO(
 ) {
 
     @JsonCreator
-    public PostDTO(long id, String title, String text, String[] tags, long likesCount, long commentsCount) {
+    public PostDto(long id, String title, String text, String[] tags, long likesCount, long commentsCount) {
         this.id = id;
         this.title = title;
         this.text = text;
