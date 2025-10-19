@@ -46,9 +46,11 @@ public class PostController {
         List<Post> posts = service.findAll(search, pageNumber, pageSize);
 
         List<PostDTO> postDTOList = postMapper.toPostDTOList(posts);
-        long total_count= Optional.ofNullable(posts.getFirst())
-                                            .map(Post::getTotal_records)
-                                            .orElse(0L);
+        long total_count=posts.stream()
+                .findFirst()
+                .map(Post::getTotal_records)
+                .orElse(0L);
+        System.out.println("PageNumber "+pageNumber + " PageSize "+pageSize +" total_count "+total_count +" hasnext ((long) pageNumber * pageSize) < total_count"+(((long) pageNumber * pageSize)<total_count));
         return new ResponseEntity<>(new ResponceDTO(postDTOList,
                                         pageNumber>1,
                                         ((long) pageNumber * pageSize)<total_count,
@@ -105,8 +107,12 @@ public class PostController {
 
     //6 increment likes counter
     @PostMapping("/{id}/likes")
-    public ResponseEntity<Long> like(@PathVariable(name = "id") Long id) {
-        return new ResponseEntity<>(service.like(id), HttpStatus.OK);
+    public ResponseEntity<?> like(@PathVariable(name = "id") Long id) {
+        if (!service.exists(id))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't locate post");
+        else {
+            return new ResponseEntity<>(service.like(id), HttpStatus.OK);
+        }
     }
 
     //7 upload post image

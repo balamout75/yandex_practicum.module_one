@@ -53,7 +53,7 @@ class JdbcNativeUserRepositoryTest {
 
     @Test
     void save_shouldAddPostWithTagsToDatabase() {
-        PostDTO post = new PostDTO(8L,"Седьмой пост", "Бла", new String[]{"Байкал", "горы"}, "", 0L, 0L);
+        PostDTO post = new PostDTO(8L,"Седьмой пост", "Бла", new String[]{"Байкал", "горы"}, 0L, 0L);
         postRepository.save(post);
         List<Post> all = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
         Post saved = all.stream().filter(u -> u.getId()==(7L)).findFirst().orElse(null);
@@ -91,8 +91,10 @@ class JdbcNativeUserRepositoryTest {
         assertEquals(2, saved.getTags().length);
         assertEquals("Байкал", saved.getTags()[0]);
         assertEquals("горы", saved.getTags()[1]);
-        PostDTO post = new PostDTO(PostNumber,"Шестое сообщение, исправленное", "Бла", new String[]{"аршан","горы", }, "Другой файл", 10L, 10L);
+
+        PostDTO post = new PostDTO(PostNumber,"Шестое сообщение, исправленное", "Бла", new String[]{"аршан","горы", }, 10L, 10L);
         postRepository.update(PostNumber,post);
+
         all = postRepository.findAll(new ArrayList<>(), new ArrayList<>(), 1, 10);
         saved = all.stream().filter(u -> u.getId()==(PostNumber)).findFirst().orElse(null);
         assertNotNull(saved);
@@ -105,7 +107,6 @@ class JdbcNativeUserRepositoryTest {
         assertEquals(2, saved.getTags().length);
         assertEquals("Аршан", saved.getTags()[0]);
         assertEquals("горы", saved.getTags()[1]);
-
     }
 
     @Test
