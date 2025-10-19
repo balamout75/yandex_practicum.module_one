@@ -147,6 +147,7 @@ public class PostController {
                 .body(file);
     }
 
+    //9 get post image
     @GetMapping(value = "/undefined/comments")
     public ResponseEntity<?> getStub() {
         ArrayList<CommentDto> stub = new ArrayList<CommentDto>();
