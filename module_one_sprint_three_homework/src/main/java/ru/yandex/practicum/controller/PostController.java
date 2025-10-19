@@ -6,10 +6,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.DTO.CommentDto;
@@ -22,7 +20,7 @@ import ru.yandex.practicum.validator.PostDtoValidator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
 
 
 @CrossOrigin(maxAge = 3600)
@@ -118,14 +116,13 @@ public class PostController {
     //7 upload post image
     @PutMapping(path = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadImage(@PathVariable("id") Long id,
-                                              @RequestParam("image") MultipartFile file) throws Exception {
+                                              @RequestParam("image") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Empty file");
         }
         if (!service.exists(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("post not found");
         }
-        boolean ok = service.uploadImage(id, file);
         if (service.uploadImage(id, file))
             return ResponseEntity.ok().body("Image uploaded");
         else
@@ -137,8 +134,7 @@ public class PostController {
     @GetMapping(value = "/{id}/image")
     public ResponseEntity<Resource> getImage(@PathVariable("id") Long id) {
         System.out.println("Да все вроде хорошо");
-        Resource file=null;
-        file = service.getImage(id);
+        Resource file = service.getImage(id);
         if (file == null) {
                 return ResponseEntity.notFound().build();
         } else return ResponseEntity.ok()
@@ -150,7 +146,7 @@ public class PostController {
     //9 get post image
     @GetMapping(value = "/undefined/comments")
     public ResponseEntity<?> getStub() {
-        ArrayList<CommentDto> stub = new ArrayList<CommentDto>();
+        ArrayList<CommentDto> stub = new ArrayList<>();
         return new ResponseEntity<>(stub, HttpStatus.OK);
     }
 
