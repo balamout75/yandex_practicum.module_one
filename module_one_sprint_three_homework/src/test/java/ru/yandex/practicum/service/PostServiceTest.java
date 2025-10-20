@@ -1,7 +1,5 @@
 package ru.yandex.practicum.service;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,19 +7,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import ru.yandex.practicum.DTO.CommentDto;
-import ru.yandex.practicum.configuration.DataSourceConfiguration;
-import ru.yandex.practicum.model.Post;
-import ru.yandex.practicum.repository.JdbcNativeCommentRepository;
+
 import ru.yandex.practicum.repository.PostRepository;
 
 import java.util.ArrayList;
@@ -44,7 +36,7 @@ class PostServiceTest {
             String inputString,
             List <String> words,
             List <String> tags
-    ) {};
+    ) {}
 
     static Stream<Arguments> applySearchString() {
         return Stream.of(
@@ -59,7 +51,7 @@ class PostServiceTest {
     @ParameterizedTest
     @MethodSource("applySearchString")
     void testSearchConditionParser(Request request) {
-        //when(postRepository.findAll(anyList(),anyList(),anyInt(),anyInt())).thenReturn(new ArrayList<>());
+        when(postRepository.findAll(anyList(),anyList(),anyInt(),anyInt())).thenReturn(new ArrayList<>());
         postService.findAll (request.inputString,1,1);
         verify(postRepository).findAll(request.words,request.tags,1,1);
     }
