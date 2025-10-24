@@ -29,7 +29,7 @@ public class Post {
 
     @ColumnDefault("0")
     @Column(name = "LIKESCOUNT")
-    private Long likescount;
+    private Long likesCount;
 
     @OneToMany(mappedBy = "postid")
     private Set<Comment> comments = new LinkedHashSet<>();
@@ -69,12 +69,12 @@ public class Post {
         this.image = image;
     }
 
-    public Long getLikescount() {
-        return likescount;
+    public Long getLikesCount() {
+        return likesCount;
     }
 
-    public void setLikescount(Long likescount) {
-        this.likescount = likescount;
+    public void setLikesCount(Long likescount) {
+        this.likesCount = likescount;
     }
 
     public Set<Comment> getComments() {

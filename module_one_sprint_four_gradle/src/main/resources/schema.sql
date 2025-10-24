@@ -1,18 +1,4 @@
-CREATE TABLE users(
-                      id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                      first_name VARCHAR(50) NOT NULL,
-                      last_name  VARCHAR(50) NOT NULL,
-                      age        INT         NOT NULL,
-                      active     BOOLEAN     NOT NULL
-);
-
-INSERT INTO users(first_name, last_name, age, active)
-VALUES ('Иван', 'Иванов', 30, true),
-       ('Пётр', 'Петров', 25, false),
-       ('Мария', 'Сидорова', 28, true);
-
-drop SEQUENCE if exists image_sequence;
-
+drop table if exists posts;
 create table if not exists posts(
                                     id bigserial primary key,
                                     title varchar NOT NULL,
@@ -40,6 +26,7 @@ create table if not exists postsandtags(
                                            FOREIGN KEY (post) REFERENCES posts(id) ON DELETE CASCADE,
                                            FOREIGN KEY (tag) REFERENCES tags (id) ON DELETE CASCADE);
 
+drop SEQUENCE if exists image_sequence;
 CREATE SEQUENCE image_sequence
     START WITH 1
     INCREMENT BY 1
