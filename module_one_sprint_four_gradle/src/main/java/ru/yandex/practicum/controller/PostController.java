@@ -48,12 +48,9 @@ public class PostController {
     public ResponseEntity<ResponceDto> getAllPosts(@RequestParam("search") String search,
                                          @RequestParam("pageNumber") int pageNumber,
                                          @RequestParam("pageSize") int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
         Page<PostDto> pagedPost = service.findAll(search, pageable);
-        List<PostDto> postDtoList = pagedPost.toList();
-
-
-        return new ResponseEntity<>(new ResponceDto(postDtoList,
+        return new ResponseEntity<>(new ResponceDto(pagedPost.toList(),
                                                         pagedPost.hasPrevious(),
                                                         pagedPost.hasNext(),
                                                         pagedPost.getTotalPages()),
@@ -63,7 +60,8 @@ public class PostController {
     //2 post getting
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getPostById(@PathVariable(name = "id") Long id) {
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        PostDto postDto = service.getById(id);
+        return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
 
     //3 post creation
@@ -74,7 +72,7 @@ public class PostController {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors.getAllErrors());
         }
-        return new ResponseEntity<>(null,
+        return new ResponseEntity<>(service.save(postDto),
                                     HttpStatus.CREATED);
     }
 

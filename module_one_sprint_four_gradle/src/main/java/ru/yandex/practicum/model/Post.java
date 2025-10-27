@@ -35,6 +35,10 @@ public class Post {
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @ManyToMany
+    @JoinTable(
+            name = "postsandtags",
+            joinColumns = @JoinColumn(name = "post"),
+            inverseJoinColumns = @JoinColumn(name = "tag"))
     private Set<Tag> tags = new LinkedHashSet<>();
 
     public Long getId() {

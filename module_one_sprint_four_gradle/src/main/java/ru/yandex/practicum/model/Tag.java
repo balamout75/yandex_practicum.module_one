@@ -13,12 +13,20 @@ public class Tag {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Lob
+    //@Lob
     @Column(name = "TAG", nullable = false)
     private String tag;
 
     @ManyToMany(mappedBy = "tags")
     private Set<Post> posts = new LinkedHashSet<>();
+
+    public Tag(String tag) {
+        this.tag=tag;
+    }
+
+    public Tag() {
+
+    }
 
     public Long getId() {
         return id;
