@@ -146,10 +146,10 @@ public class PostController {
     }
 
     //9 get post image
-    /*@GetMapping(value = "/undefined/comments")
+    @GetMapping(value = "/undefined/comments")
     public ResponseEntity<?> getStub() {
-        ArrayList<CommentDto> stub = new ArrayList<>();
-        return new ResponseEntity<>(stub, HttpStatus.OK);
-    }*/
+        //ArrayList<CommentDto> stub = new ArrayList<>();
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+    }
 
 }

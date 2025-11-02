@@ -19,8 +19,9 @@ public class PostDtoMapper  {
         Post post = new Post();
         post.setTitle(postDto.title());
         post.setText(postDto.text());
-        post.setText(postDto.text());
-        return new Post();
+        post.setImage("");
+        post.setLikesCount(0L);
+        return post;
 
     }
 }

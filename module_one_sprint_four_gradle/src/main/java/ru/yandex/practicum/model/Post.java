@@ -41,6 +41,9 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "tag"))
     private Set<Tag> tags = new LinkedHashSet<>();
 
+    public Post() {
+    }
+
     public Long getId() {
         return id;
     }
