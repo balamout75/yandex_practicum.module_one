@@ -19,7 +19,7 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "POSTID")
-    private Post postid;
+    private Post post;
 
     public Long getId() {
         return id;
@@ -37,12 +37,12 @@ public class Comment {
         this.text = text;
     }
 
-    public Post getPostid() {
-        return postid;
+    public Post getPost() {
+        return post;
     }
 
-    public void setPostid(Post postid) {
-        this.postid = postid;
+    public void setPost(Post post) {
+        this.post = post;
     }
 
 }
