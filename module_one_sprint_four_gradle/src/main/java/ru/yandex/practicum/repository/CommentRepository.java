@@ -1,13 +1,19 @@
 package ru.yandex.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import ru.yandex.practicum.model.Comment;
+import ru.yandex.practicum.model.Post;
+
+import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
-    //Page<Post> findByTitleLike(String title, Pageable pageable);
+    List<Comment> findByPost(Post post);
 
     Comment findById(Long id);
+
+    void deleteById(Long id);
 
     //Page<Post> findByTitleLike(String title, Pageable pageable);
 
@@ -15,7 +21,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     /*
     Post update(Long id, PostDto postDto);
 
-    void deleteById(Long id);
+
 
     Post getById(Long id);
 

@@ -31,7 +31,7 @@ public class Post {
     @Column(name = "LIKESCOUNT")
     private Long likesCount;
 
-    @OneToMany(mappedBy = "postid")
+    @OneToMany(mappedBy = "post")
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @ManyToMany
