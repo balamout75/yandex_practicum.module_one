@@ -12,7 +12,6 @@ public class Comment {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Lob
     @Column(name = "TEXT", nullable = false)
     private String text;
 

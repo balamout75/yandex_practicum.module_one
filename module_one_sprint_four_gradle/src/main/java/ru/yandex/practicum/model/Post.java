@@ -2,6 +2,9 @@ package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.descriptor.jdbc.NVarcharJdbcType;
+import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -14,16 +17,13 @@ public class Post {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    @Lob
     @Column(name = "TITLE", nullable = false)
     private String title;
 
-    @Lob
     @Column(name = "TEXT", nullable = false)
     private String text;
 
     @ColumnDefault("''")
-    @Lob
     @Column(name = "IMAGE", nullable = false)
     private String image;
 

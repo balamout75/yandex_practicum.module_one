@@ -2,7 +2,6 @@ package ru.yandex.practicum.controller;
 
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,13 +9,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 //import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.dto.PostDto;
-import ru.yandex.practicum.dto.ResponceDto;
+import ru.yandex.practicum.dto.ResponseDto;
 
-import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
 import ru.yandex.practicum.validator.PostDtoValidator;
 
@@ -26,8 +23,6 @@ import org.springframework.data.domain.Pageable;
 
 
 import java.util.ArrayList;
-import java.util.List;
-
 
 
 @CrossOrigin(maxAge = 3600)
@@ -36,7 +31,6 @@ import java.util.List;
 public class PostController {
     private final PostDtoValidator postDtoValidator;
     private final PostService service;
-    //private final PostMapper postMapper=PostMapper.INSTANCE;
 
     public PostController(PostService service, PostDtoValidator postDtoValidator) {
         this.service = service;
@@ -45,12 +39,12 @@ public class PostController {
 
     //1 posts list returning
     @GetMapping()
-    public ResponseEntity<ResponceDto> getAllPosts(@RequestParam("search") String search,
-                                         @RequestParam("pageNumber") int pageNumber,
-                                         @RequestParam("pageSize") int pageSize) {
+    public ResponseEntity<ResponseDto> getAllPosts(@RequestParam("search") String search,
+                                                   @RequestParam("pageNumber") int pageNumber,
+                                                   @RequestParam("pageSize") int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber-1, pageSize);
         Page<PostDto> pagedPost = service.findAll(search, pageable);
-        return new ResponseEntity<>(new ResponceDto(pagedPost.toList(),
+        return new ResponseEntity<>(new ResponseDto(pagedPost.toList(),
                                                         pagedPost.hasPrevious(),
                                                         pagedPost.hasNext(),
                                                         pagedPost.getTotalPages()),
@@ -91,10 +85,10 @@ public class PostController {
         if (!service.exists(id))
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't update comment");
         else
-            return new ResponseEntity<>(null,HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(service.update(postDto),HttpStatus.ACCEPTED);
     }
 
-    //5 update post
+    //5 delete post
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable(name = "id") Long id) {
         if (!service.exists(id))
@@ -145,7 +139,7 @@ public class PostController {
                 .body(file);
     }
 
-    //9 get post image
+    //9 frontend incorrect request stab
     @GetMapping(value = "/undefined/comments")
     public ResponseEntity<?> getStub() {
         //ArrayList<CommentDto> stub = new ArrayList<>();

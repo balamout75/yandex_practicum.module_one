@@ -7,8 +7,8 @@ import ru.yandex.practicum.model.Tag;
 import java.util.List;
 import java.util.Optional;
 
-//@Repository
+@Repository
 public interface TagRepository extends JpaRepository<Tag, Integer> {
 
-   Tag findByTagIgnoreCase (String tag);
+   Optional<Tag> findByTagIgnoreCase (String tag);
 }

@@ -1,11 +1,9 @@
 package ru.yandex.practicum.service;
 
-import org.hibernate.annotations.Comments;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.mapping.CommentDtoMapper;
 import ru.yandex.practicum.mapping.CommentEntityMapper;
-import ru.yandex.practicum.mapping.PostDtoMapper;
-import ru.yandex.practicum.mapping.PostEntityMapper;
 import ru.yandex.practicum.model.Comment;
 import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.model.Post;
@@ -13,7 +11,6 @@ import ru.yandex.practicum.repository.CommentRepository;
 import ru.yandex.practicum.repository.PostRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -46,7 +43,12 @@ public class CommentService {
         return null;
     }
 
-    public void deleteById(Long id) { commentRepository.deleteById(id); }
+    @Transactional
+    public void deleteById(Long postId, Long commentId) {
+        Post post = postRepository.findById(postId);
+        commentRepository.deleteById(commentId);
+        postRepository.save(post);
+    }
 
     public CommentDto getById(Long id) {
         return commentEntityMapper.toDto(commentRepository.findById(id));

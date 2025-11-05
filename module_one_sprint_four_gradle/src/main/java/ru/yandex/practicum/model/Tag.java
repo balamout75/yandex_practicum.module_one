@@ -13,7 +13,6 @@ public class Tag {
     @Column(name = "ID", nullable = false)
     private Long id;
 
-    //@Lob
     @Column(name = "TAG", nullable = false)
     private String tag;
 
@@ -50,6 +49,11 @@ public class Tag {
 
     public void setPosts(Set<Post> posts) {
         this.posts = posts;
+    }
+
+    @Override
+    public String toString() {
+        return tag;
     }
 
 }
