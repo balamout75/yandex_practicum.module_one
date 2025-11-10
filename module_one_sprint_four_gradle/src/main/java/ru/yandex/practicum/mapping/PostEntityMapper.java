@@ -15,18 +15,20 @@ public class PostEntityMapper  {
                 post.getText(),
                 post.getTags().stream()
                         .map(Tag::getTag)
+                        .sorted()
                         .toArray(String[]::new),
                 post.getLikesCount(),
                 post.getComments().size());
     }
     public PostDto toDtoWithTitleForming(Post post) {
         String title=post.getTitle();
-        if (title.length()>128) title=title.substring(0,128);
+        if (title.length()>128) title=title.substring(0,128)+"...";
         return new PostDto(post.getId(),
-                post.getTitle(),
                 title,
+                post.getText(),
                 post.getTags().stream()
                         .map(Tag::getTag)
+                        .sorted()
                         .toArray(String[]::new),
                 post.getLikesCount(),
                 post.getComments().size());

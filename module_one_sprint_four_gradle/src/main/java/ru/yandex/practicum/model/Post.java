@@ -3,6 +3,8 @@ package ru.yandex.practicum.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.descriptor.jdbc.NVarcharJdbcType;
 import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
 
@@ -32,6 +34,7 @@ public class Post {
     private Long likesCount;
 
     @OneToMany(mappedBy = "post")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Comment> comments = new LinkedHashSet<>();
 
     @ManyToMany
@@ -42,7 +45,10 @@ public class Post {
     private Set<Tag> tags = new LinkedHashSet<>();
 
     public Post() {
+        this.image="";
+        this.likesCount=0L;
     }
+
 
     public Long getId() {
         return id;

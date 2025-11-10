@@ -2,6 +2,7 @@ package ru.yandex.practicum.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.dto.PostDto;
 import ru.yandex.practicum.mapping.CommentDtoMapper;
 import ru.yandex.practicum.mapping.CommentEntityMapper;
 import ru.yandex.practicum.model.Comment;
@@ -33,9 +34,19 @@ public class CommentService {
                 .toList();
     }
 
+    public CommentDto save(CommentDto commentDto, Comment comment) {
+        Comment targetComment= commentDtoMapper.toEntity(commentDto, comment);
+        return commentEntityMapper.toDto(commentRepository.save(targetComment));
+    }
+
     public CommentDto save(CommentDto commentDto) {
-        Comment comment= commentDtoMapper.toEntity(commentDto);
-        return commentEntityMapper.toDto(commentRepository.save(comment));
+        Comment comment=new Comment();
+        return this.save(commentDto, comment);
+    }
+
+    public CommentDto update(CommentDto commentDto) {
+        Comment comment = commentRepository.findById(commentDto.id());
+        return this.save(commentDto, comment);
     }
 
     public CommentDto update(Long id, CommentDto commentDto) {
@@ -54,6 +65,6 @@ public class CommentService {
         return commentEntityMapper.toDto(commentRepository.findById(id));
     }
 
-    public boolean existsById(Long postId, Long commentId) { return true; }
+    public boolean existsById(Long postId, Long commentId) { return commentRepository.existsByPost_IdAndId(postId, commentId); }
 
 }

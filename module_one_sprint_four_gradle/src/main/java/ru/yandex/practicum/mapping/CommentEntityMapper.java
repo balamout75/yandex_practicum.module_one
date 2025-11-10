@@ -2,6 +2,7 @@ package ru.yandex.practicum.mapping;
 
 import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.model.Comment;
+import ru.yandex.practicum.repository.PostRepository;
 
 public class CommentEntityMapper  {
 

@@ -2,11 +2,13 @@ package ru.yandex.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.model.Comment;
 import ru.yandex.practicum.model.Post;
 
 import java.util.List;
 
+@Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     List<Comment> findByPost(Post post);
@@ -15,29 +17,6 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     void deleteById(Long id);
 
-    //Page<Post> findByTitleLike(String title, Pageable pageable);
+    boolean existsByPost_IdAndId(Long postId, Long Id);
 
-
-    /*
-    Post update(Long id, PostDto postDto);
-
-
-
-    Post getById(Long id);
-
-    String getFileNameByPostId(Long id);
-
-    void setFileNameByPostId(Long id, String fileName);
-
-    List<String> getTagsByPostId(Long id);
-
-    Long like(Long id);
-
-    Long getPostsCommentsCountById(Long id);
-
-    String getFileSuffix();
-
-    List<Post> findAll(List<String> searchwords, List<String> tags, int pageNumber, int pageSize);
-
-    boolean existsById(Long id);*/
 }

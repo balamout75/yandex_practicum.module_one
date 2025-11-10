@@ -1,21 +1,24 @@
 package ru.yandex.practicum.controller;
 
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.configuration.DatabaseTestConfig;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -24,21 +27,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+//Gsnfkcz
 @SpringBootTest
-@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(PER_CLASS)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@AutoConfigureMockMvc
 class PostControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+    public boolean postCreated = false;
+    private boolean postDeleted = false;
 
     //CRUD
     @Test
+    @Order(1)
     void getPosts_returnsJsonArray() throws Exception {
         long total_records = 6l;
         long pageSize=total_records-1;
-        //pageSize=10;
 
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize="+pageSize))
                 .andExpect(status().isOk())
@@ -68,6 +75,7 @@ class PostControllerIntegrationTest {
     }
 
     @Test
+    @Order(2)
     void getPostById_returnsJsonArray() throws Exception {
         mockMvc.perform(get("/api/posts/2"))
                 .andExpect(status().isOk())
@@ -81,6 +89,7 @@ class PostControllerIntegrationTest {
     }
 
     @Test
+    @Order(3)
     void createPost_acceptsJson_andPersists() throws Exception {
         String json = """
                   {"title":"Седьмое сообщение","text":"О чем то","tags":["Daniel","Craig"]}
@@ -93,7 +102,6 @@ class PostControllerIntegrationTest {
                 .orElse(0L);*/
         long total_records = 6l;
         long last_record = 6l;
-        //long pageSize=total_records-1;
         mockMvc.perform(post("/api/posts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
@@ -103,15 +111,16 @@ class PostControllerIntegrationTest {
                 .andExpect(jsonPath("$['title']").value("Седьмое сообщение"))
                 .andExpect(jsonPath("$['text']").value("О чем то"))
                 .andExpect(jsonPath("$['tags']",hasSize(2)))
-                .andExpect(jsonPath("$['tags'][0]").value("Daniel"))
-                .andExpect(jsonPath("$['tags'][1]").value("Craig"));
+                .andExpect(jsonPath("$['tags'][0]").value("craig"))
+                .andExpect(jsonPath("$['tags'][1]").value("daniel"));
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$['posts']",hasSize((int) (total_records+1))));
+        postCreated=true;
     }
 
-    /*
     @Test
+    @Order(4)
     void updatePost_acceptsJson_andPersists() throws Exception {
         long postId=6L;
         mockMvc.perform(get("/api/posts/"+postId))
@@ -120,7 +129,7 @@ class PostControllerIntegrationTest {
                 .andExpect(jsonPath("$['title']").value("Шестое сообщение"))
                 .andExpect(jsonPath("$['text']").value("Бла бла бла"))
                 .andExpect(jsonPath("$['tags']",hasSize(2)))
-                .andExpect(jsonPath("$['tags'][0]").value("байкал"))
+                .andExpect(jsonPath("$['tags'][0]").value ("байкал"))
                 .andExpect(jsonPath("$['tags'][1]").value("горы"))
                 .andExpect(jsonPath("$['likesCount']").value(3))
                 .andExpect(jsonPath("$['commentsCount']").value(0));
@@ -138,8 +147,8 @@ class PostControllerIntegrationTest {
                 .andExpect(jsonPath("$.likesCount").value(3l))
                 .andExpect(jsonPath("$.commentsCount").value(0))
                 .andExpect(jsonPath("$['tags']",hasSize(2)))
-                .andExpect(jsonPath("$['tags'][0]").value("Daniel"))
-                .andExpect(jsonPath("$['tags'][1]").value("Craig"));
+                .andExpect(jsonPath("$['tags'][0]").value("craig"))
+                .andExpect(jsonPath("$['tags'][1]").value("daniel"));
 
         mockMvc.perform(get("/api/posts/"+postId))
                 .andExpect(status().isOk())
@@ -150,15 +159,17 @@ class PostControllerIntegrationTest {
                 .andExpect(jsonPath("$.likesCount").value(3l))
                 .andExpect(jsonPath("$.commentsCount").value(0))
                 .andExpect(jsonPath("$['tags']",hasSize(2)))
-                .andExpect(jsonPath("$['tags'][0]").value("Daniel"))
-                .andExpect(jsonPath("$['tags'][1]").value("Craig"));
+                .andExpect(jsonPath("$['tags'][0]").value("craig"))
+                .andExpect(jsonPath("$['tags'][1]").value("daniel"));
     }
 
     @Test
+    @Order(5)
     void deletePost_success() throws Exception {
         long postIdAndNum=3L;
 
         long total_records=6;
+        if (postCreated) total_records++;
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize=10"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -182,9 +193,11 @@ class PostControllerIntegrationTest {
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['tags'][0]").value("горы"))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['likesCount']").value(2))
                 .andExpect(jsonPath("$['posts']["+(postIdAndNum-1)+"]['commentsCount']").value(0));
+        postDeleted=true;
     }
 
     @Test
+    @Order(6)
     void uploadAndDownloadImage_success() throws Exception {
         byte[] pngStub = new byte[]{(byte) 137, 80, 78, 71};
         long postId=6L;
@@ -201,6 +214,7 @@ class PostControllerIntegrationTest {
     }
 
     @Test
+    @Order(7)
     void getImage_postHasImage() throws Exception {
         mockMvc.perform(get("/api/posts/{id}/image", 1))
                 .andExpect(status().isOk())
@@ -208,6 +222,7 @@ class PostControllerIntegrationTest {
     }
 
     @Test
+    @Order(8)
     void uploadImage_emptyFile_badRequest() throws Exception {
         MockMultipartFile empty = new MockMultipartFile("image", "empty.png", "image/png", new byte[0]);
         mockMvc.perform(multipart(HttpMethod.PUT,"/api/posts/{id}/image", 3L).file(empty))
@@ -215,6 +230,7 @@ class PostControllerIntegrationTest {
     }
 
     @Test
+    @Order(9)
     void uploadImage_postNotFound_404() throws Exception {
         MockMultipartFile file = new MockMultipartFile("image", "image.png", "image/png", new byte[]{1, 2, 3});
         mockMvc.perform(multipart(HttpMethod.PUT,"/api/posts/{id}/image", 999L).file(file))
@@ -222,18 +238,22 @@ class PostControllerIntegrationTest {
     }
 
     @Test
+    @Order(10)
     void getImage_postHasNoImage_404() throws Exception {
-        mockMvc.perform(get("/api/posts/{id}/image", 6L))
+        long postIdAndNum=2L;
+        mockMvc.perform(get("/api/posts/{id}/image", postIdAndNum))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @Order(11)
     void getImage_postNotFound_404() throws Exception {
         mockMvc.perform(get("/api/posts/{id}/image", 777L))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @Order(12)
     void Post_like() throws Exception {
         mockMvc.perform(post("/api/posts/{id}/likes",1L))
                 .andExpect(status().isOk())
@@ -241,6 +261,7 @@ class PostControllerIntegrationTest {
     }
 
     @Test
+    @Order(13)
     void Post_like_postNotFound_404() throws Exception {
         mockMvc.perform(post("/api/posts/{id}/likes",777L))
                 .andExpect(status().isNotFound());
@@ -286,6 +307,4 @@ class PostControllerIntegrationTest {
                         .content(json))
                 .andExpect(status().isBadRequest());
     }
-
-     */
 }

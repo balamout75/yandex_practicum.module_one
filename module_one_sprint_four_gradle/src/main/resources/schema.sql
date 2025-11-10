@@ -1,4 +1,4 @@
-drop table if exists posts;
+drop table if exists posts cascade ;
 create table if not exists posts(
                                     id bigserial primary key,
                                     title varchar NOT NULL,
@@ -13,7 +13,7 @@ create table if not exists comments(
                                        postid bigint,
                                        FOREIGN KEY (postid) REFERENCES posts(id) ON DELETE CASCADE);
 
-drop table if exists tags;
+drop table if exists tags cascade;
 create table if not exists tags(
                                    id bigserial primary key,
                                    tag varchar UNIQUE NOT NULL);

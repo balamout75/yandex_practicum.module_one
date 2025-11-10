@@ -129,7 +129,6 @@ public class PostController {
     //8 get post image
     @GetMapping(value = "/{id}/image")
     public ResponseEntity<Resource> getImage(@PathVariable("id") Long id) {
-        System.out.println("Да все вроде хорошо");
         Resource file = service.getImage(id);
         if (file == null) {
                 return ResponseEntity.notFound().build();

@@ -13,8 +13,7 @@ public class CommentDtoMapper {
     }
 
     //@Override
-    public Comment toEntity(CommentDto commentDto) {
-        Comment comment = new Comment();
+    public Comment toEntity(CommentDto commentDto, Comment comment) {
         comment.setText(commentDto.text());
         comment.setPost(postRepository.findById(commentDto.postId()));
         return comment;
