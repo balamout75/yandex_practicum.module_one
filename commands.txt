@@ -1,0 +1,4 @@
+git clone -b
+  --single-branch https://github.com/balamout75/yandex_practicum.module_one.git
+
+git clone -b module_one_sprint_four_branch --single-branch https://github.com/balamout75/yandex_practicum.module_one.git
