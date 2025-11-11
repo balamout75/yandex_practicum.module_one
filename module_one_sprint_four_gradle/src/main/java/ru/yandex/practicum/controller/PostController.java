@@ -1,5 +1,6 @@
 package ru.yandex.practicum.controller;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.core.io.Resource;
@@ -7,15 +8,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
+
 import org.springframework.web.multipart.MultipartFile;
-//import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.dto.PostDto;
 import ru.yandex.practicum.dto.ResponseDto;
 
 import ru.yandex.practicum.service.PostService;
-import ru.yandex.practicum.validator.PostDtoValidator;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,18 +21,19 @@ import org.springframework.data.domain.Pageable;
 
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 
 @CrossOrigin(maxAge = 3600)
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
-    private final PostDtoValidator postDtoValidator;
+
     private final PostService service;
 
-    public PostController(PostService service, PostDtoValidator postDtoValidator) {
+    public PostController(PostService service) {
         this.service = service;
-        this.postDtoValidator = postDtoValidator;
     }
 
     //1 posts list returning
@@ -60,12 +59,7 @@ public class PostController {
 
     //3 post creation
     @PostMapping
-    public ResponseEntity<?> savePost(@RequestBody PostDto postDto) {
-        Errors errors = new BeanPropertyBindingResult(postDto, "postDto");
-        postDtoValidator.validate(postDto, errors) ;
-        if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors.getAllErrors());
-        }
+    public ResponseEntity<PostDto> savePost(@Validated(PostDto.New.class) @RequestBody PostDto postDto) {
         return new ResponseEntity<>(service.save(postDto),
                                     HttpStatus.CREATED);
     }
@@ -73,17 +67,12 @@ public class PostController {
     //4 update post
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id,
-                                    @RequestBody PostDto postDto) {
-        Errors errors = new BeanPropertyBindingResult(postDto, "postDto");
-        postDtoValidator.validate(postDto, errors, "update") ;
-        if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors.getAllErrors());
-        }
-        if (id!=postDto.id()) {
-            return ResponseEntity.badRequest().body("Incorrect request");
+                                    @Validated(PostDto.Exist.class) @RequestBody PostDto postDto) {
+        if (!Objects.equals(id, postDto.id())) {
+            return ResponseEntity.badRequest().body("Incorrect id");
         }
         if (!service.exists(id))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't update comment");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Incorrect id");
         else
             return new ResponseEntity<>(service.update(postDto),HttpStatus.ACCEPTED);
     }
@@ -140,8 +129,7 @@ public class PostController {
 
     //9 frontend incorrect request stab
     @GetMapping(value = "/undefined/comments")
-    public ResponseEntity<?> getStub() {
-        //ArrayList<CommentDto> stub = new ArrayList<>();
+    public ResponseEntity<List<PostDto>> getStub() {
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
     }
 

@@ -8,21 +8,15 @@ public class PostEntityMapper  {
 
     public PostEntityMapper() {   }
 
-    //@Override
     public PostDto toDto(Post post) {
-        return new PostDto(post.getId(),
-                post.getTitle(),
-                post.getText(),
-                post.getTags().stream()
-                        .map(Tag::getTag)
-                        .sorted()
-                        .toArray(String[]::new),
-                post.getLikesCount(),
-                post.getComments().size());
+        return toDtoOverall(post.getTitle(),post);
+
     }
     public PostDto toDtoWithTitleForming(Post post) {
         String title=post.getTitle();
-        if (title.length()>128) title=title.substring(0,128)+"...";
+        return toDtoOverall((title.length()>128)?(title.substring(0,128)+"..."):title,post);
+    }
+    private PostDto toDtoOverall(String title,Post post) {
         return new PostDto(post.getId(),
                 title,
                 post.getText(),
@@ -31,6 +25,6 @@ public class PostEntityMapper  {
                         .sorted()
                         .toArray(String[]::new),
                 post.getLikesCount(),
-                post.getComments().size());
+                (long) post.getComments().size());
     }
 }

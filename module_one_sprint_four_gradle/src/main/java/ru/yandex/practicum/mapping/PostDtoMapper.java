@@ -14,8 +14,7 @@ public class PostDtoMapper  {
 
     public PostDtoMapper(TagSearcher tagSearcher) { this.tagSearcher = tagSearcher; }
 
-    //@Override
-    public Post toEntity(PostDto postDto, Post post) {
+        public Post toEntity(PostDto postDto, Post post) {
         post.setTitle(postDto.title());
         post.setText(postDto.text());
         String[] tags = postDto.tags();
