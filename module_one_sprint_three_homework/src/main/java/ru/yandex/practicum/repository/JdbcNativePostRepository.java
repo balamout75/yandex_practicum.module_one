@@ -76,7 +76,6 @@ public class JdbcNativePostRepository implements PostRepository {
             whereSQL = whereSQL+wherePrefixSQL+searchIlikeSQL+"'%"+searchSubstring+"%'";
         }
         selectSQL = selectSQL+whereSQL+pagenabeTaleSQL;
-        System.out.println(selectSQL + " " + pageSize +" "+pageNumber);
         return jdbcTemplate.query(selectSQL,postRowMapper, pageSize, pageSize * (pageNumber - 1));
     }
 

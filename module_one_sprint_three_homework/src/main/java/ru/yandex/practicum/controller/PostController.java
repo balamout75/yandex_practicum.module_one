@@ -48,7 +48,6 @@ public class PostController {
                 .findFirst()
                 .map(Post::getTotal_records)
                 .orElse(0L);
-        System.out.println("PageNumber "+pageNumber + " PageSize "+pageSize +" total_count "+total_count +" hasnext ((long) pageNumber * pageSize) < total_count"+(((long) pageNumber * pageSize)<total_count));
         return new ResponseEntity<>(new ResponceDto(postDtoList,
                                         pageNumber>1,
                                         ((long) pageNumber * pageSize)<total_count,
@@ -133,7 +132,6 @@ public class PostController {
     //8 get post image
     @GetMapping(value = "/{id}/image")
     public ResponseEntity<Resource> getImage(@PathVariable("id") Long id) {
-        System.out.println("Да все вроде хорошо");
         Resource file = service.getImage(id);
         if (file == null) {
                 return ResponseEntity.notFound().build();
