@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public record ResponceDto (
+public record ResponseDto (
     @JsonProperty("posts") List<PostDto> posts,
     @JsonProperty("hasPrev") boolean hasPrev,
     @JsonProperty("hasNext") boolean hasNext,
