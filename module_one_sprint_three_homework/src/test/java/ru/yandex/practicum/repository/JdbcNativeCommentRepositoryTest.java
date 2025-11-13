@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import ru.yandex.practicum.DTO.CommentDto;
+import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.configuration.DataSourceConfiguration;
 import ru.yandex.practicum.model.Comment;
 

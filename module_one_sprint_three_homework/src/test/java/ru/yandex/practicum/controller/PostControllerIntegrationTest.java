@@ -16,7 +16,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import ru.yandex.practicum.DTO.PostDto;
+import ru.yandex.practicum.dto.PostDto;
 import ru.yandex.practicum.configuration.DataSourceConfiguration;
 import ru.yandex.practicum.configuration.WebConfiguration;
 import ru.yandex.practicum.model.Post;
@@ -66,7 +66,6 @@ class PostControllerIntegrationTest {
                 .findFirst()
                 .orElse(0L);
         long pageSize=total_records-1;
-        //pageSize=10;
 
         mockMvc.perform(get("/api/posts?search=&pageNumber=1&pageSize="+pageSize))
                 .andExpect(status().isOk())

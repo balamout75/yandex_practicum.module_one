@@ -10,9 +10,9 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.DTO.CommentDto;
-import ru.yandex.practicum.DTO.PostDto;
-import ru.yandex.practicum.DTO.ResponceDto;
+import ru.yandex.practicum.dto.CommentDto;
+import ru.yandex.practicum.dto.PostDto;
+import ru.yandex.practicum.dto.ResponseDto;
 import ru.yandex.practicum.mapping.PostMapper;
 import ru.yandex.practicum.model.Post;
 import ru.yandex.practicum.service.PostService;
@@ -48,7 +48,7 @@ public class PostController {
                 .findFirst()
                 .map(Post::getTotal_records)
                 .orElse(0L);
-        return new ResponseEntity<>(new ResponceDto(postDtoList,
+        return new ResponseEntity<>(new ResponseDto(postDtoList,
                                         pageNumber>1,
                                         ((long) pageNumber * pageSize)<total_count,
                                         (int) Math.ceil((double) total_count / pageSize)),

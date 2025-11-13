@@ -2,8 +2,8 @@ package ru.yandex.practicum.validator;
 
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
-import ru.yandex.practicum.DTO.CommentDto;
-import ru.yandex.practicum.DTO.PostDto;
+import ru.yandex.practicum.dto.CommentDto;
+import ru.yandex.practicum.dto.PostDto;
 
 public class CommentDtoValidator implements SmartValidator {
 

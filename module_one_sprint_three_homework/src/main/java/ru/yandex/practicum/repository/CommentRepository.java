@@ -1,6 +1,6 @@
 package ru.yandex.practicum.repository;
 
-import ru.yandex.practicum.DTO.CommentDto;
+import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.model.Comment;
 
 import java.util.List;

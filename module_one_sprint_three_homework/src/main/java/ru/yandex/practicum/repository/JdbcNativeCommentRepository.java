@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.DTO.CommentDto;
+import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.mapping.CommentRowMapper;
 import ru.yandex.practicum.model.Comment;
 

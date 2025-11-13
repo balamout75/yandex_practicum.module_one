@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.DTO.PostDto;
+import ru.yandex.practicum.dto.PostDto;
 import ru.yandex.practicum.mapping.PostRowMapper;
 import ru.yandex.practicum.mapping.TagRowMapper;
 import ru.yandex.practicum.model.Post;

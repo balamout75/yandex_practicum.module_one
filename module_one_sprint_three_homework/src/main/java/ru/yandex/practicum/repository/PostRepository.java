@@ -1,6 +1,6 @@
 package ru.yandex.practicum.repository;
 
-import ru.yandex.practicum.DTO.PostDto;
+import ru.yandex.practicum.dto.PostDto;
 import ru.yandex.practicum.model.Post;
 
 import java.util.List;

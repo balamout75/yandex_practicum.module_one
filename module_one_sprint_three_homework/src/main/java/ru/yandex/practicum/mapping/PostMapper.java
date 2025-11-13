@@ -3,10 +3,10 @@ package ru.yandex.practicum.mapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
-import ru.yandex.practicum.DTO.CommentDto;
+import ru.yandex.practicum.dto.CommentDto;
 import ru.yandex.practicum.model.Comment;
 import ru.yandex.practicum.model.Post;
-import ru.yandex.practicum.DTO.PostDto;
+import ru.yandex.practicum.dto.PostDto;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.DTO;
+package ru.yandex.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

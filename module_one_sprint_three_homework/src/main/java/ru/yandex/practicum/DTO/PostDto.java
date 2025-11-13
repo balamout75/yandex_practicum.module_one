@@ -1,4 +1,4 @@
-package ru.yandex.practicum.DTO;
+package ru.yandex.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +8,6 @@ public record PostDto(
         @JsonProperty("title") String title,
         @JsonProperty("text") String text,
         @JsonProperty("tags") String[] tags,
-        //@JsonProperty("image") String image,
         @JsonProperty("likesCount") long likesCount,
         @JsonProperty("commentsCount") long commentsCount
 
@@ -20,7 +19,6 @@ public record PostDto(
         this.title = title;
         this.text = text;
         this.tags = tags;
-        //this.image = image;
         this.likesCount = likesCount;
         this.commentsCount = commentsCount;
     }
